@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "noEmit": false, "outDir": "dist/desktop", "rootDir": "src" },
+  "include": ["src/desktop", "src/studio", "src/runtime", "src/core", "src/mock/server.ts"]
+}

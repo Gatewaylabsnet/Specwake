@@ -1,0 +1,58 @@
+openapi: 3.1.0
+info:
+  title: Pet Catalog
+  version: 1.0.0
+servers:
+  - url: https://example.invalid/v1
+paths:
+  /pets:
+    get:
+      operationId: list_pets
+      summary: Find your next companion
+      description: List pets in the catalog, optionally filtered by adoption status.
+      parameters:
+        - name: status
+          in: query
+          description: Filter pets by their adoption status.
+          schema:
+            type: string
+            enum: [available, adopted]
+      responses:
+        '200': { description: A list of pets }
+    post:
+      operationId: create_pet
+      summary: Add a pet to the catalog
+      responses:
+        '201': { description: Created }
+  /pets/{id}:
+    get:
+      operationId: get_pet
+      description: Look up one pet by its catalog identifier.
+      parameters:
+        - $ref: '#/components/parameters/PetId'
+      responses:
+        '200': { description: A pet }
+  /health:
+    get:
+      operationId: check_health
+      description: Check the catalog service status.
+      responses:
+        '200': { description: Service status }
+  /search:
+    get:
+      summary: Search with advanced filters
+      parameters:
+        - name: filters
+          in: query
+          style: deepObject
+          schema: { type: object }
+      responses:
+        '200': { description: Search results }
+components:
+  parameters:
+    PetId:
+      name: id
+      in: path
+      required: true
+      description: Pet identifier, for example pet_001.
+      schema: { type: string }

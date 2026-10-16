@@ -1,0 +1,13 @@
+{
+  "openapi": "3.0.3",
+  "info": { "title": "Service Health", "version": "1.0.0" },
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "service_health",
+        "description": "Read the service health from the local mock.",
+        "responses": { "200": { "description": "Service status" } }
+      }
+    }
+  }
+}

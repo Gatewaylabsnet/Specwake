@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.tmp/
+artifacts/
+release/
+.env
+target.json
+*.log

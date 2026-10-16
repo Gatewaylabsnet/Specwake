@@ -1,0 +1,32 @@
+{
+  "appId": "net.gatewaylabs.specwake",
+  "productName": "Specwake",
+  "copyright": "Copyright © 2026 GatewayLabs",
+  "directories": { "output": "release", "buildResources": "build" },
+  "asar": true,
+  "asarUnpack": ["dist/runtime/**", "node_modules/**"],
+  "npmRebuild": false,
+  "files": [
+    "dist/desktop/**", "dist/runtime/**", "dist/ui/**",
+    "src/runtime/**", "src/core/model.ts", "src/core/contracts.ts",
+    "templates/**", "examples/**", "build/icon.png", "LICENSE", "package.json",
+    "!node_modules/tsx/**", "!node_modules/react/**", "!node_modules/react-dom/**"
+  ],
+  "win": {
+    "target": [ { "target": "portable", "arch": ["x64"] }, { "target": "nsis", "arch": ["x64"] } ],
+    "icon": "build/icon.ico",
+    "signExecutable": false
+  },
+  "portable": { "artifactName": "Specwake-${version}-Portable-x64.exe" },
+  "nsis": {
+    "artifactName": "Specwake-${version}-Setup-x64.exe",
+    "oneClick": false,
+    "perMachine": false,
+    "allowElevation": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "runAfterFinish": false
+  },
+  "publish": null
+}

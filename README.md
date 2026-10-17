@@ -10,6 +10,12 @@ This first working MVP has one five-step workflow: import a file, select operati
 
 Specwake also runs in its own native application window. The Windows x64 portable EXE and per-user installer include Electron, Chromium and Node.js; end users do not need a browser, Node.js or npm to run the authoring application. The desktop UI uses the same verified core and runtime as the optional web mode. Generated MCP server ZIPs still require Node.js 24+ on the machine where they run.
 
+Download **[Specwake v0.1.0](https://github.com/Gatewaylabsnet/Specwake/releases/tag/v0.1.0)**:
+
+- [Portable EXE — no installation](https://github.com/Gatewaylabsnet/Specwake/releases/download/v0.1.0/Specwake-0.1.0-Portable-x64.exe)
+- [Windows setup EXE](https://github.com/Gatewaylabsnet/Specwake/releases/download/v0.1.0/Specwake-0.1.0-Setup-x64.exe)
+- [SHA-256 checksums](https://github.com/Gatewaylabsnet/Specwake/releases/download/v0.1.0/SHA256SUMS.txt)
+
 Local build outputs:
 
 - `release/Specwake-0.1.0-Portable-x64.exe`: double-click; no installation required.
@@ -25,7 +31,7 @@ npm run test:desktop
 
 `npm run desktop` runs the desktop application from source. The app owns an ephemeral loopback-only management port and shuts it down on exit. Its renderer is sandboxed, has no Node integration or privileged preload bridge, rejects external navigation/new windows and denies permission requests. Resources and dependencies are bundled; runtime probes use the included executable in Node mode and a writable temporary directory, including when installed under a read-only application directory. No updater or release publishing is enabled.
 
-These development EXEs are **unsigned**; Windows may display an unknown-publisher/SmartScreen prompt. Code signing and public release distribution have not been performed. Binaries remain local ignored build outputs; this repository contains the source and repeatable packaging commands. See [desktop packaging and verification](docs/DESKTOP.md).
+These MVP EXEs are **unsigned**; Windows may display an unknown-publisher/SmartScreen prompt. Binaries are distributed through GitHub Releases; local build outputs remain ignored by Git. This repository contains the source and repeatable packaging commands. See [desktop packaging and verification](docs/DESKTOP.md).
 
 ## Run locally
 

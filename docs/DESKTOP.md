@@ -22,7 +22,7 @@ Both Windows x64 outputs are created under `release/`:
 - `Specwake-0.1.0-Portable-x64.exe`: self-extracting portable application.
 - `Specwake-0.1.0-Setup-x64.exe`: per-user NSIS installer, no admin elevation requested, selectable destination and shortcuts.
 
-The icon is original Specwake geometry, generated reproducibly by `scripts/create-icon.mjs`; no Specfold asset was copied. Code signing is disabled, while application icon and version metadata are applied. These are unsigned development builds. An unknown publisher or SmartScreen prompt is possible. No certificate or access credential was created, and no release/deployment was published.
+The icon is original Specwake geometry, generated reproducibly by `scripts/create-icon.mjs`; no Specfold asset was copied. Code signing is disabled, while application icon and version metadata are applied. These are unsigned MVP builds. An unknown publisher or SmartScreen prompt is possible. No certificate or access credential was created. The [v0.1.0 GitHub Release](https://github.com/Gatewaylabsnet/Specwake/releases/tag/v0.1.0) distributes the portable EXE, setup EXE and SHA-256 checksums separately from the source repository.
 
 `electron-builder.json` packs the UI, compiled backend, selected runtime sources needed for export, templates, fixtures and production dependencies. It excludes development dependencies and source checkout state. ASAR holds application resources; the subprocess runtime and production dependencies are explicitly unpacked so the included Electron executable can run the MCP stdio child without relying on the source checkout or a separate Node installation. Packaging uses `--publish never`.
 

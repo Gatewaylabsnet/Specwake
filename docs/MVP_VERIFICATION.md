@@ -43,3 +43,7 @@ OpenAPI 3.0.x/3.1.x, GET, belge içi ref, scalar path/query ve enum desteği var
 Gerçek API, gerçek credential, kurumsal ağ veya harici HTTP MCP transportu denenmedi. Sonraki istekte Windows desktop ve kurulum paketleri eklendi; masaüstü kanıtı [DESKTOP.md](DESKTOP.md) içindedir. Mock yalnızca projeye ait sabit fixture'ları doğrular. Kaynak ve ZIP değiştirilebilir yerel dosyalardır; paket imzası veya kötü niyetli yerel işleticiye karşı sandbox sağlamaz. İlk npm kurulumu internet gerektirir; uygulama akışı ücretli AI servisi gerektirmez.
 
 Üretilen kod: core import/contract, stdio runtime, hedef politikası/HTTP istemcisi, mock, loopback studio API, ZIP exporter, React arayüzü, JSON/YAML örnekleri, iki lockfile ve otomatik doğrulama scriptleri. Tam dosya listesi `git status --short` ile görülebilir.
+
+## v0.1.0 yayımlama — 17 Ekim 2026
+
+Kullanıcının ayrıca verdiği release yayımlama isteğiyle portable ve kurulum EXE'leri, SHA256SUMS.txt ile birlikte v0.1.0 GitHub Release'e eklendi. İmzalanmamış ikili dosyaların hash değerleri, 16 Ekim'deki paketleme ve portable doğrulamasında kullanılan dosyalarla aynı olduğu kontrol edilerek doğrulandı. Yayımlama hazırlığı yalnızca indirme bağlantıları ve bu kaydı değiştirdi; uygulama kodu ve ikili dosyalar yeniden değiştirilmedi.

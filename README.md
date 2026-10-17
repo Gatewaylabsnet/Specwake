@@ -122,7 +122,7 @@ npm run test:export
 npm audit --omit=dev --audit-level=high
 ```
 
-`npm test` builds first, then runs parser, schema, runtime, MCP and management HTTP tests. `test:export` creates a ZIP, extracts it into a new `.tmp/standalone-*` directory, runs `npm ci`, checks dependencies resolve inside that package, compiles its source and uses the official MCP client against its stdio executable. It verifies initialize/list/call, selected-tool isolation and a mock response. No actual external API is called; npm installation uses the public registry. Disposable probe folders are removed; standalone verification folders remain ignored for inspection.
+`npm test` builds first, then runs parser, schema, runtime, MCP and management HTTP tests. `test:export` creates a ZIP, extracts it into a new operating-system temporary directory **outside the source checkout**, runs `npm ci` from that package's lockfile, checks dependencies resolve inside that package, compiles its source and uses the official MCP client against its stdio executable. It verifies initialize/list/call, selected-tool isolation, a mock response and stable parameter diagnostics. No actual external API is called; npm installation uses the public registry. Disposable probe folders are removed; standalone verification folders remain in OS temp for inspection and their path is recorded in the ignored verification report.
 
 To verify the actual ZIP downloaded through the UI, move it into this project's `artifacts/` and run:
 
@@ -132,6 +132,12 @@ npm run test:export -- artifacts/ui-export.zip
 
 The verifier expects the sample's `GET /pets` tool. Results and the portable demo package are written to ignored `artifacts/export-verification.json` and `artifacts/specwake-server.zip`. See [the verified delivery report](docs/MVP_VERIFICATION.md) for actual results and browser evidence.
 
+## Next working-tree improvements (unreleased)
+
+The second development round adds [stable runtime diagnostics](templates/RUNTIME_ERRORS.md), isolated HTTPS/auth/DNS policy tests, and mock receipts tied to the exact document/manifest/tool/argument set. Returning, editing, resetting arguments or changing selections invalidates an old result; a route without fixture coverage is reported explicitly. Mock results still do not verify real API authentication.
+
+The [Windows / Node 24 workflow](.github/workflows/windows-ci.yml) installs a clean checkout, builds/tests, verifies the ZIP outside the repository, packages the desktop without running an installer and independently verifies its generated ZIP. `npm run desktop:pack:dir` builds only the unpacked desktop for this smoke check. **The workflow has not been run remotely in this round.** See [second-round evidence and acceptance gates](docs/ROUND2_VERIFICATION.md) and the [CLI/Linux/web design for the next round](docs/NEXT_ROUND.md). These local changes are not part of the previously published v0.1.0 binaries until separately released.
+
 ## Layout and next scope
 
 `src/core` owns OpenAPI import and tool contracts; `src/runtime` owns MCP/HTTP execution; `src/studio` owns the loopback management API, probing and export; `src/ui` owns React; `src/mock` and `examples` are deterministic fixtures. The export copies only the small runtime and contracts. All source is within this repository; no common package or cross-project link was introduced.
@@ -139,3 +145,9 @@ The verifier expects the sample's `GET /pets` tool. Results and the portable dem
 Next work: broaden schema/serialization support with explicit tests, add operator target configuration UX, more fixture coverage, signed desktop distribution and manifest integrity checks. This MVP intentionally excludes SaaS, accounts, billing, team features, cloud sync, remote HTTP MCP transport, LLM integration and production-system validation.
 
 SDK usage follows the official [server](https://ts.sdk.modelcontextprotocol.io/v2/get-started/first-server) and [client](https://ts.sdk.modelcontextprotocol.io/v2/get-started/first-client) documentation, checked on 2026-10-16. Official TypeScript MCP server/client **2.3.1** use `McpServer.registerTool`, `serveStdio`, `Client` and `StdioClientTransport`. The package registry and installed declarations were also checked. Specfold was inspected read-only for product context and its Apache-2.0 license; no code or assets were copied. Specwake retains this repository's Apache-2.0 license.
+
+## Yerel web yönetim prototipi (yayınlanmamış çalışma)
+
+`npm run panel` ile başlayın: http://127.0.0.1:4319/panel. Demo OpenAPI → açık GET seçimi → gerçek Streamable HTTP MCP hizmeti → çağrı/istatistik/kayıt akışı yerelde çalışır. Kurum sistemlerine bağlanmaz; API/proxy ve istemci etiketleri demo kapsamındadır. Mevcut stdio/ZIP oluşturucu `/` altında devam eder.
+
+[Başlatma ve yönetici demo adımları](docs/WEB_PROTOTYPE.md) · [Test, görsel kanıt ve güvenlik incelemesi](docs/WEB_PROTOTYPE_VERIFICATION.md). Dockerfile hazırlığı vardır; bu Windows makinesinde Docker Linux motoru çalışmadığı için Docker/Linux smoke testi yapılmadı. Bu çalışma yayımlanmış v0.1.0 EXE'lerine dahil değildir.

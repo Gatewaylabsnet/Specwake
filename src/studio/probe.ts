@@ -5,6 +5,7 @@ import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import type { Manifest } from '../core/model.js';
 import { ROOT } from './export.js';
 import { mkdir } from 'node:fs/promises';
+import { errorResult, RuntimeFault } from '../runtime/errors.js';
 
 export interface ProbeOptions { root?: string; runtimeRoot?: string; tempRoot?: string; runtimeEnv?: Record<string,string>; }
 export async function probe(manifest: Manifest, target: unknown, toolName: string, args: unknown, options: ProbeOptions = {}) {
@@ -19,7 +20,8 @@ export async function probe(manifest: Manifest, target: unknown, toolName: strin
     await writeFile(join(cwd,'target.json'),JSON.stringify(target));
     await client.connect(transport);
     const list = await client.listTools();
-    const result = await client.callTool({name:toolName,arguments:args as Record<string,unknown>});
+    let result = await client.callTool({name:toolName,arguments:args as Record<string,unknown>});
+    if (result.isError && JSON.stringify(result.content).includes('[SW_PARAMETER_INVALID]')) result = errorResult(new RuntimeFault('SW_PARAMETER_INVALID'));
     return {initialized:true,toolNames:list.tools.map(t => t.name),result};
   } finally { await client.close(); await transport.close(); await rm(cwd,{recursive:true,force:true}); }
 }

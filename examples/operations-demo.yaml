@@ -1,0 +1,50 @@
+openapi: 3.1.0
+info:
+  title: Operations Demo API
+  version: 1.0.0
+paths:
+  /services:
+    get:
+      operationId: list_services
+      summary: Sentetik servis kataloğunu listele
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [healthy, degraded]
+      responses:
+        '200': {description: Sentetik servis listesi}
+    post:
+      summary: Servis oluştur — bu prototipte kapalı
+      responses:
+        '201': {description: Oluşturuldu}
+  /services/{id}:
+    get:
+      operationId: get_service
+      summary: Sentetik servis ayrıntısını getir
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        '200': {description: Sentetik servis}
+  /summary:
+    get:
+      operationId: service_summary
+      summary: Sentetik katalog özetini getir
+      responses:
+        '200': {description: Katalog özeti}
+  /simulate/error:
+    get:
+      operationId: demo_failure
+      summary: Kontrollü upstream hatası üret (503)
+      responses:
+        '503': {description: Kasıtlı demo hatası}
+  /simulate/slow:
+    get:
+      operationId: demo_delay
+      summary: Gecikmeli demo yanıtı (1,6 saniye)
+      responses:
+        '200': {description: Gecikmeli yanıt}

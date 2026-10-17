@@ -1,0 +1,13 @@
+*
+!package.json
+!package-lock.json
+!tsconfig*.json
+!vite.config.ts
+!src/
+!src/**
+!templates/
+!templates/**
+!examples/
+!examples/**
+!LICENSE
+!Dockerfile

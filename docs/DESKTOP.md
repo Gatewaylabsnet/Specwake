@@ -54,6 +54,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-desktop.ps1 -
 
 There is no remote debugging endpoint or privileged renderer test bridge. The self-test is a fixed backend scenario enabled only by explicit local command-line arguments, not renderer input. An installer is built without installing it on the development machine. Installation/uninstall and SmartScreen acceptance are not automated.
 
+The second working-tree round adds `npm run desktop:pack:dir` for an unpacked build, an isolated self-test user-data profile, process-exit/port-cleanup checks, and `artifacts/desktop-verification-server.zip`. Verify that exact desktop-produced archive with `npm run test:export -- artifacts/desktop-verification-server.zip`; extraction and installation take place outside the source checkout. The Windows/Node 24 CI definition runs these steps but has not been dispatched remotely. See [second-round evidence](ROUND2_VERIFICATION.md). Installer install/uninstall is an explicit separate isolated-Windows gate; it must not be run on the X570 development workstation.
+
 ## Recorded result — 16 October 2026
 
 The ASAR-packaged `win-unpacked/Specwake.exe` passed the packaged verification with bundled Electron 44.8.0 / Node.js 24.22.0. The operating-system PATH contained only System32 during this check. The package's own dependencies, UI, fixture, subprocess, and export templates were used successfully; no global Node.js or source working directory was needed.

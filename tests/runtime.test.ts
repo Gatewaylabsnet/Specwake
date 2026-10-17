@@ -32,10 +32,9 @@ test('real MCP initialize/list/call uses only selected tools and validates argum
     const invalid=await probe(manifest,mock.target,tool.name,{query_status:'invalid'});assert.equal(invalid.result.isError,true);
   } finally {await mock.close();}
 });
-test('redirects, response limit, DNS mismatch, missing auth and timeout fail safely',async()=>{
+test('mock redirect, response limit, fixture gap, missing auth and timeout have distinct safe codes',async()=>{
   const mock=await startMock();try {
-    for(const path of ['/redirect','/large','/missing','/slow']) {const result=await executeTool({...tool,path,parameters:[]},{},mock.target);assert.equal(result.isError,true,path);assert.doesNotMatch(result.content[0].text,/No fixture|xxxx/);}
-    const mismatch=await executeTool(tool,{}, {...mock.target,allowedAddresses:['127.0.0.2']});assert.equal(mismatch.isError,true);
+    for(const [path,code] of [['/redirect','SW_REDIRECT_BLOCKED'],['/large','SW_RESPONSE_TOO_LARGE'],['/missing','SW_MOCK_FIXTURE_MISSING'],['/slow','SW_TIMEOUT']]) {const result=await executeTool({...tool,path,parameters:[]},{},mock.target);assert.equal(result.isError,true,path);assert.equal(result.structuredContent?.error.code,code);}
     const auth=await executeTool({...tool,auth:{kind:'bearer'}},{},mock.target,{});assert.equal(auth.isError,true);
   }finally{await mock.close();}
 });

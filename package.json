@@ -10,6 +10,8 @@
     "dev": "npm run build && tsx src/studio/server.ts",
     "build": "tsc --noEmit && vite build && tsc -p tsconfig.runtime.json",
     "start": "tsx src/studio/server.ts",
+    "panel": "npm run build && tsx src/panel/cli.ts",
+    "panel:start": "tsx src/panel/cli.ts",
     "pretest": "npm run build",
     "test": "tsx --test tests/*.test.ts",
     "test:export": "tsx scripts/verify-export.ts",
@@ -17,7 +19,8 @@
     "desktop:build": "npm run build && tsc -p tsconfig.desktop.json && node scripts/create-icon.mjs",
     "desktop": "npm run desktop:build && electron .",
     "desktop:pack": "npm run desktop:build && electron-builder --config electron-builder.json --win --x64 --publish never",
-    "test:desktop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-desktop.ps1"
+    "test:desktop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-desktop.ps1",
+    "desktop:pack:dir": "npm run desktop:build && electron-builder --config electron-builder.json --win --x64 --dir --publish never"
   },
   "dependencies": {
     "@modelcontextprotocol/client": "2.3.1",

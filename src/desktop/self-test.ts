@@ -22,8 +22,11 @@ export async function desktopSelfTest(origin: string, reportPath: string, root: 
   assert.equal(preview.tools[0].name,'catalog_pets');
   const result = await (await post('test',{...selection,toolName:'catalog_pets',args:{query_status:'available'}})).json() as any;
   assert.equal(result.initialized,true);assert.deepEqual(result.toolNames,['catalog_pets']);assert.ok(!result.result.isError);assert.match(JSON.stringify(result.result),/Miso/);
-  const files = unzipSync(new Uint8Array(await (await post('export',selection)).arrayBuffer()));
+  const archive = new Uint8Array(await (await post('export',selection)).arrayBuffer());
+  const files = unzipSync(archive);
   assert.ok(files['src/runtime/cli.ts']);assert.ok(files['package-lock.json']);
+  assert.ok(files['src/runtime/errors.ts']);assert.ok(files['ERROR_CODES.md']);
+  await writeFile(reportPath.replace(/\.json$/i,'')+'-server.zip',archive);
   assert.equal(JSON.parse(strFromU8(files['tools.json'])).tools.length,1);
   const foreign = await fetch(`${origin}/api/session`,{headers:{Origin:'https://example.invalid'}});
   assert.equal(foreign.status,403);

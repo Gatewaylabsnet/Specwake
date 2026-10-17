@@ -8,6 +8,9 @@ import type { ImportedSpec } from '../core/model.js';
 import { exportPackage, ROOT } from './export.js';
 import { probe, type ProbeOptions } from './probe.js';
 import { startMock } from '../mock/server.js';
+import { safeDiagnostic } from '../runtime/errors.js';
+import { makeProbeReceipt } from '../core/probe-context.js';
+import { createPanel } from '../panel/routes.js';
 
 export function checkBrowserRequest(req: Pick<IncomingMessage,'headers'|'method'>, origin: string, token: string) {
   const host = new URL(origin).host;
@@ -26,13 +29,14 @@ async function body(req: IncomingMessage) {
 }
 function json(res: ServerResponse, status: number, value: unknown) { res.writeHead(status,{'Content-Type':'application/json'});res.end(JSON.stringify(value)); }
 
-export async function startStudio(port = 4318, options: ProbeOptions = {}) {
+export async function startStudio(port = 4318, options: ProbeOptions & {panelDataDir?: string} = {}) {
   const csrf = randomBytes(32).toString('hex');
   const root = options.root ?? ROOT;
   let origin = `http://127.0.0.1:${port}`;
   const docs = new Map<string,{spec:ImportedSpec,at:number}>();
   const mock = await startMock();
   let probing = false;
+  let panel: Promise<Awaited<ReturnType<typeof createPanel>>> | undefined;
   const server = createServer(async (req,res) => {
     res.setHeader('X-Content-Type-Options','nosniff');
     res.setHeader('Referrer-Policy','no-referrer');
@@ -41,6 +45,12 @@ export async function startStudio(port = 4318, options: ProbeOptions = {}) {
     if (!checkBrowserRequest(req,origin,csrf)) return json(res,403,{error:'Request blocked: use the local Specwake origin and session token.'});
     try {
       const path = new URL(req.url!,origin).pathname;
+      if (path.startsWith('/api/panel/')) {
+        panel ??= createPanel(root, options.panelDataDir ?? resolve(ROOT,'.local-data'));
+        try { await (await panel).handle(req,res,new URL(req.url!,origin)); }
+        catch { json(res,503,{code:'PANEL_UNAVAILABLE',error:'Panel kaydı açılamadı. Veri dizinini ve tek çalışan süreç olduğunu kontrol edin.'}); }
+        return;
+      }
       if (req.method === 'GET' && path === '/api/session') return json(res,200,{token:csrf});
       if (req.method === 'POST' && ['/api/import','/api/sample'].includes(path)) {
         const data = await body(req);
@@ -61,8 +71,16 @@ export async function startStudio(port = 4318, options: ProbeOptions = {}) {
         if (path === '/api/test') {
           if (probing) return json(res,429,{error:'A mock test is already running. Try again after it completes.'});
           if (!manifest.tools.some(t => t.name === data.toolName)) throw new Error('Choose a selected tool.');
+          if (!data.args || typeof data.args !== 'object' || Array.isArray(data.args)) {
+            const diagnostic=safeDiagnostic(undefined,'SW_PARAMETER_INVALID');
+            return json(res,400,{error:`[${diagnostic.code}] ${diagnostic.message} ${diagnostic.hint}`,diagnostic});
+          }
           probing = true;
-          try { return json(res,200,await probe(manifest,mock.target,data.toolName,data.args,options)); }
+          try {
+            const receipt=await makeProbeReceipt(data.documentId,manifest,data.toolName,data.args);
+            return json(res,200,{...await probe(manifest,mock.target,data.toolName,data.args,options),receipt});
+          }
+          catch {const diagnostic=safeDiagnostic(undefined,'SW_MCP_CONNECTION_FAILED');return json(res,400,{error:`[${diagnostic.code}] ${diagnostic.message} ${diagnostic.hint}`,diagnostic});}
           finally { probing = false; }
         }
         const zip = await exportPackage(manifest,root);
@@ -70,7 +88,7 @@ export async function startStudio(port = 4318, options: ProbeOptions = {}) {
       }
       if (path.startsWith('/api/')) return json(res,404,{error:'Unknown action.'});
       if (req.method !== 'GET' && req.method !== 'HEAD') return json(res,405,{error:'Method not allowed.'});
-      const asset = path === '/' ? 'index.html' : /^\/assets\/[A-Za-z0-9_-]+\.(js|css)$/.test(path) ? path.slice(1) : undefined;
+      const asset = ['/', '/panel'].includes(path) ? 'index.html' : /^\/assets\/[A-Za-z0-9_-]+\.(js|css)$/.test(path) ? path.slice(1) : undefined;
       if (!asset) return json(res,404,{error:'Not found.'});
       try {
         const bytes = await readFile(resolve(root,'dist/ui',asset));
@@ -83,9 +101,17 @@ export async function startStudio(port = 4318, options: ProbeOptions = {}) {
   catch (error) { await mock.close(); throw error; }
   origin = `http://127.0.0.1:${(server.address() as {port:number}).port}`;
   console.error(`Specwake ready: ${origin}`);
-  return {server,origin,close:async () => {await new Promise<void>(resolve => server.close(() => resolve()));await mock.close();}};
+  server.headersTimeout = 10000;
+  server.requestTimeout = 10000;
+  return {server,origin,close:async () => {
+    await new Promise<void>(resolve => server.close(() => resolve()));
+    if (panel) { const active = await panel.catch(() => undefined); await active?.close(); }
+    await mock.close();
+  }};
 }
 if (process.argv[1] && resolve(process.argv[1]) === resolve(import.meta.filename)) {
-  const studio = await startStudio();
-  for (const signal of ['SIGINT','SIGTERM'] as const) process.once(signal,async () => {await studio.close();process.exit(0);});
+  try {
+    const studio = await startStudio();
+    for (const signal of ['SIGINT','SIGTERM'] as const) process.once(signal,async () => {await studio.close();process.exit(0);});
+  } catch (error) {console.error(JSON.stringify({error:safeDiagnostic(error,'SW_STARTUP_FAILED')}));process.exitCode=1;}
 }

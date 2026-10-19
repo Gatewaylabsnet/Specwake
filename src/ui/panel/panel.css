@@ -1942,3 +1942,9 @@
 .mp-warning{border-left:3px solid #a46b15;padding-left:10px;color:#795419}
 
 .mp-read-result{padding:16px;border-left:3px solid #317866;background:#edf6f1;color:#214538;margin:12px 0;font-size:12px;line-height:1.6}
+.mp-connection-export{padding:18px;margin-bottom:20px;border:1px solid var(--mp-line,#dce4e3);border-radius:10px;background:#fff}.mp-connection-export label{display:grid;gap:6px;max-width:420px;margin-bottom:12px}.mp-connection-export input{width:100%;padding:10px;border:1px solid #b9c9c5;border-radius:6px;box-sizing:border-box}.mp-connection-export input:focus-visible{outline:2px solid #21665e;outline-offset:2px}.mp-connection-export p{max-width:900px;overflow-wrap:anywhere}.mp-connection-export small{display:block;line-height:1.6}
+
+.manager .mp-progress{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:1100px){.manager .mp-progress{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.mp-settings{margin-bottom:24px}.mp-settings-body{padding:20px 24px}.mp-settings-body details+details{margin-top:20px}.mp-settings-body summary{cursor:pointer;font-weight:600}.mp-settings-body label:not(.mp-check){display:grid;gap:6px;margin:14px 0}.mp-settings-body input:not([type=checkbox]),.mp-settings-body textarea,.mp-settings-body select{width:100%;padding:10px;border:1px solid #b7c9bf;border-radius:6px;box-sizing:border-box;max-width:760px}.mp-settings-body p{line-height:1.7;max-width:900px}.mp-settings-body .mp-check{display:flex;align-items:flex-start;gap:8px;margin:14px 0}.manager .mp-progress{grid-template-columns:repeat(5,minmax(0,1fr))}@media(max-width:1200px){.manager .mp-progress{grid-template-columns:repeat(2,minmax(0,1fr))}}

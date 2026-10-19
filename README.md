@@ -1,28 +1,28 @@
 # Specwake
 
-**A local OpenAPI specification → explicitly selected MCP tools → a standalone stdio server.** Part of the GatewayLabs family; an independent product with no dependency on Specfold, ConfigDiff or Signal.
+**OpenAPI → reviewed tools → a local HTTP MCP service with an explicit upstream target, or a standalone stdio server.** Part of the GatewayLabs family; an independent product with no dependency on Specfold, ConfigDiff or Signal.
 
-This first working MVP has one five-step workflow: import a file, select operations, edit/review tool definitions, call the bundled mock through an actual MCP connection, then download and independently run the server package. No account, telemetry, LLM, cloud sync or paid AI service is involved.
+The legacy developer builder at `/developer` has one five-step workflow: import a file, select operations, edit/review tool definitions, call the bundled mock through an actual MCP connection, then download and independently run the server package. No account, telemetry, LLM, cloud sync or paid AI service is involved.
 
-![Specwake management demo](docs/screenshots/07-management-overview.png)
+![Specwake management demo](docs/screenshots/12-real-upstream.png)
 
 ## Windows desktop EXE
 
 Specwake also runs in its own native application window. The Windows x64 portable EXE and per-user installer include Electron, Chromium and Node.js; end users do not need a browser, Node.js or npm to run the authoring application. The desktop UI uses the same verified core and runtime as the optional web mode. Generated MCP server ZIPs still require Node.js 24+ on the machine where they run.
 
-Download **[Specwake v0.2.0 — local management demo](https://github.com/Gatewaylabsnet/Specwake/releases/tag/v0.2.0)**:
+Download **[Specwake v0.3.0 — local management demo](https://github.com/Gatewaylabsnet/Specwake/releases/tag/v0.3.0)**:
 
-- [Portable EXE — no installation](https://github.com/Gatewaylabsnet/Specwake/releases/download/v0.2.0/Specwake-0.2.0-Portable-x64.exe)
-- [Windows setup EXE](https://github.com/Gatewaylabsnet/Specwake/releases/download/v0.2.0/Specwake-0.2.0-Setup-x64.exe)
-- [SHA-256 checksums](https://github.com/Gatewaylabsnet/Specwake/releases/download/v0.2.0/SHA256SUMS-0.2.0.txt)
+- [Portable EXE — no installation](https://github.com/Gatewaylabsnet/Specwake/releases/download/v0.3.0/Specwake-0.3.0-Portable-x64.exe)
+- [Windows setup EXE](https://github.com/Gatewaylabsnet/Specwake/releases/download/v0.3.0/Specwake-0.3.0-Setup-x64.exe)
+- [SHA-256 checksums](https://github.com/Gatewaylabsnet/Specwake/releases/download/v0.3.0/SHA256SUMS-0.3.0.txt)
 
 Local build outputs:
 
-- `release/Specwake-0.2.0-Portable-x64.exe`: current local demo; opens the management panel.
-- `release/Specwake-0.2.0-Setup-x64.exe`: current per-user installer and shortcuts.
-- `release/SHA256SUMS-0.2.0.txt`: current package hashes; binaries are distributed through the release assets above.
+- `release/Specwake-0.3.0-Portable-x64.exe`: current local demo; opens the management panel.
+- `release/Specwake-0.3.0-Setup-x64.exe`: current per-user installer and shortcuts.
+- `release/SHA256SUMS-0.3.0.txt`: current package hashes; binaries are distributed through the release assets above.
 
-The Windows demo includes an independent SDK client mode in the EXE. Copy its PowerShell command from the MCP service screen; Node.js/npm and the source checkout are unnecessary for that client. The exported standalone stdio ZIP still needs Node.js 24+. See the [Windows quick start](docs/WINDOWS_QUICK_START.md) and [delivery verification](docs/WINDOWS_DELIVERY_VERIFICATION.md). The previous v0.1.0 and v0.1.1 releases remain available as historical builds.
+The Windows demo includes an independent SDK client mode in the EXE. Copy its PowerShell command from the MCP service screen; Node.js/npm and the source checkout are unnecessary for that client. The exported standalone stdio ZIP still needs Node.js 24+. See the [Windows quick start](docs/WINDOWS_QUICK_START.md) and [delivery verification](docs/WINDOWS_DELIVERY_VERIFICATION.md). The previous v0.2.0, v0.1.0 and v0.1.1 releases remain available as historical builds.
 
 Build from source:
 
@@ -39,7 +39,7 @@ These MVP EXEs are **unsigned**; Windows may display an unknown-publisher/SmartS
 
 ## Run locally
 
-For the Turkish management demo, run `npm ci` then `npm run panel` and open **http://127.0.0.1:4319/panel**. It provides an explicit OpenAPI → selected GETs → live HTTP MCP → call metadata workflow against a synthetic local API. Copy the actual MCP endpoint and separate official SDK client command from the service page. This is a local demo without enterprise authentication or an Apinizer connection. See the [five-minute demo](docs/MANAGER_DEMO_5_MIN.md), [current verification](docs/MANAGEMENT_DEMO_VERIFICATION.md), and [Linux/Docker guide](docs/LINUX_DEMO.md). Version 0.2.0 includes the current management demo; clean Windows install/uninstall and Linux/Docker runtime verification remain pending.
+For the current Turkish panel, run `npm ci` then `npm run panel` and open **http://127.0.0.1:4319/panel**. Upload OpenAPI, select/review operations, save an explicit HTTPS target and exact IPv4 addresses (or explicit loopback test API), start the MCP service and download the connection JSON. Groups, approvals, target and MCP port persist; the service starts stopped on app reopen. No credentials or raw examples are persisted. See the [current guide and verification](docs/REAL_UPSTREAM.md), [Windows first use](docs/WINDOWS_QUICK_START.md), and [Linux/Docker guide](docs/LINUX_DEMO.md). Linux runtime verification for 0.3.0 remains unperformed. Windows release candidates are tested on a disposable GitHub-hosted runner before publishing the exact tested binaries.
 
 Requirements: **Node.js 24+**, npm, and access to the public npm registry for the initial install. Versions and both application/export lockfiles are pinned.
 
@@ -51,7 +51,7 @@ npm run dev
 
 Open **http://127.0.0.1:4318**. `dev` builds and starts the UI, studio API and an ephemeral project-owned mock. It has no hot reload: rerun after source changes. Alternatively use `npm run build` then `npm start`. It never binds the studio to an external interface. Port 4318 must be free.
 
-Select **Try the Pet Catalog**, check `GET /pets` and/or `GET /pets/{id}`, review or rename the tools, then **Run mock test**. The default arguments select available pets, returning Miso. `POST /pets` and the unsupported advanced query remain visible with explanations. You can also use the native file chooser with `examples/pet-catalog.yaml` or `examples/health.json`.
+For the legacy fixture builder, manually open `/developer`. Select **Try the Pet Catalog**, check `GET /pets` and/or `GET /pets/{id}`, review or rename the tools, then **Run mock test**. The default arguments select available pets, returning Miso. `POST /pets` and the unsupported advanced query remain visible with explanations. You can also use the native file chooser with `examples/pet-catalog.yaml` or `examples/health.json`.
 
 The mock panel performs MCP initialize, `tools/list`, and `tools/call` against a separately spawned runtime. It sends requests only to the ephemeral mock's exact loopback port. Unknown routes return a failed fixture call. A successful mock call does not verify a real API or credentials. Export remains available for specifications without fixture coverage and explicitly reports that no successful mock call was recorded.
 
@@ -85,7 +85,7 @@ node dist/runtime/cli.js
 
 The client must use that directory as its working directory. Call the node command directly; npm's ordinary script banners must not be added to the protocol channel. stdout contains MCP messages only; startup diagnostics use stderr. The exported runtime needs neither this project nor its `node_modules`; an independent mock/API can supply its responses.
 
-For a real target (not exercised in this task), use `mode: "api"`. HTTPS is required unless the operator explicitly sets `allowInsecureHttp: true`. Every DNS address must be in the configured IPv4 list; each connection is pinned to a checked address. Dual-stack/IPv6 targets are unsupported in this MVP. Loopback, unspecified, link-local, multicast, metadata and unconfigured addresses are rejected in API mode. Redirects are disabled. Mock mode only allows the single explicitly configured `http://127.0.0.1:port` target.
+For a real target in the standalone runtime, use `mode: "api"`. HTTPS is required unless the operator explicitly sets `allowInsecureHttp: true`. Every DNS address must be in the configured IPv4 list; each connection is pinned to a checked address. Dual-stack/IPv6 targets are unsupported in this MVP. Loopback, unspecified, link-local, multicast, metadata and unconfigured addresses are rejected in API mode. Redirects are disabled. Mock mode only allows the single explicitly configured `http://127.0.0.1:port` target.
 
 Bearer authentication uses `SPECWAKE_BEARER_TOKEN`; X-* header API keys use `SPECWAKE_API_KEY`. Values are read only from the launching process environment. Missing required credentials fail closed. `.env.example` is illustrative and is not loaded. OAuth, security alternatives and multiple combined schemes are unsupported. Do not place secrets in specifications, tool descriptions, target files, arguments or source code. `SPECWAKE_TARGET_FILE` optionally selects an operator-owned target configuration; it is never a tool input.
 
@@ -96,7 +96,7 @@ Bearer authentication uses `SPECWAKE_BEARER_TOKEN`; X-* header API keys use `SPE
 | Versions | OpenAPI 3.0.x and 3.1.x; reject Swagger 2.0 / OpenAPI 3.2+ |
 | Files | Local JSON or YAML; safe core YAML schema, duplicate keys/tags/aliases rejected |
 | References | Document-local `#/...` JSON pointers; external references, cycles, siblings and unresolved refs fail explicitly |
-| Operations | Only GET selectable, with declared responses and no request body; other methods listed with reasons |
+| Operations | GET plus explicitly reviewed read-only JSON POST; unsupported methods listed with reasons |
 | Parameters | Scalar string, integer, number, boolean; required fields; matching scalar enums |
 | Serialization | Query `form`, explode=true; path `simple`, explode=false; each path parameter occupies a whole segment |
 | Input schema | Namespaced `path_` / `query_` properties, no unknown properties, required/type/enum validation |

@@ -15,4 +15,6 @@ $lines = foreach ($name in @("Specwake-$version-Portable-x64.exe", "Specwake-$ve
 $target = Join-Path $release "SHA256SUMS-$version.txt"
 [IO.File]::WriteAllLines($target, [string[]]$lines, [Text.UTF8Encoding]::new($false))
 Copy-Item -LiteralPath (Join-Path $root 'docs\WINDOWS_QUICK_START.md') -Destination (Join-Path $release "Specwake-$version-Kullanim.md") -Force
+Copy-Item -LiteralPath (Join-Path $root 'docs\REAL_UPSTREAM.md') -Destination (Join-Path $release "Specwake-$version-Yonetim.md") -Force
+Copy-Item -LiteralPath (Join-Path $root 'docs\DEEPSEEK_CLIENT_PROMPT.md') -Destination (Join-Path $release "Specwake-$version-DeepSeek-Prompt.md") -Force
 Write-Output $target

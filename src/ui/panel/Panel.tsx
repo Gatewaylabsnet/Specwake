@@ -2,20 +2,16 @@ import React, { useEffect, useState } from "react";
 import { ApiCatalog } from "./ApiCatalog.js";
 import { ServiceConsole } from "./ServiceConsole.js";
 import { StatisticsView } from "./StatisticsView.js";
-import {
-  panelApi,
-  panelJson,
-  defaults,
-  toolDefaults,
-  type PanelState,
-} from "./api.js";
+import { panelApi, panelJson, toolDefaults, type PanelState } from "./api.js";
 import { usePanelController } from "./usePanelController.js";
+import { UpstreamSettings } from "./UpstreamSettings.js";
+import { TargetNotice } from "./TargetNotice.js";
 import { OverviewService } from "./OverviewService.js";
-import "./panel.css";
 
 export default function Panel() {
+  const [settingsPending, setSettingsPending] = useState(false);
   const [page, setPage] = useState<"overview" | "catalog" | "service" | "logs">(
-    "overview",
+    "catalog",
   );
   const {
     state,
@@ -73,7 +69,7 @@ export default function Panel() {
           </strong>
         </a>
         <div className="mp-workspace">
-          <i /> Yerel demo ortamı<span>01</span>
+          <i /> Yerel çalışma alanı<span>01</span>
         </div>
         <div className="mp-nav-label">ÇALIŞMA ALANI</div>
         <nav>
@@ -99,10 +95,6 @@ export default function Panel() {
             </button>
           ))}
         </nav>
-        <div className="mp-nav-label mp-nav-spacer">GELİŞTİRİCİ</div>
-        <a className="mp-builder-link" href="/">
-          ↗ Bağımsız sunucu oluşturucu<span>STDIO / ZIP</span>
-        </a>
         <div className="mp-sidebar-bottom">
           <div className="mp-local-card">
             <span className={online ? "mp-dot online" : "mp-dot"} />
@@ -118,7 +110,7 @@ export default function Panel() {
           <div className="mp-session">
             <span>SW</span>
             <div>
-              Demo oturumu<small>Kurumsal kimlik doğrulama yok</small>
+              Yerel oturum<small>Kurumsal kimlik doğrulama yok</small>
             </div>
           </div>
         </div>
@@ -136,7 +128,7 @@ export default function Panel() {
                   : "Genel bakış"}
           </div>
           <div>
-            <span className="mp-demo-badge">● DEMO / SENTETİK VERİ</span>
+            <span className="mp-demo-badge">● YEREL ÇALIŞMA ALANI</span>
             <span className="mp-version">Yerel prototip</span>
           </div>
         </div>
@@ -154,23 +146,15 @@ export default function Panel() {
                       : "API’lerinizden çalışan MCP araçlarına."}
               </h1>
               <p>
-                Seçin, başlatın, gerçek bir çağrıyla doğrulayın. Kontrol sizde.
+                OpenAPI yükleyin, işlemleri hazırlayın ve bağlantı JSON’unu
+                alın.
               </p>
             </div>
             <button className="mp-button" onClick={() => void refresh()}>
               ⟳ Görünümü yenile
             </button>
           </div>
-          <div className="mp-demo-note">
-            <span>ⓘ</span>
-            <p>
-              <strong>İzole bir gösterim ortamındasınız.</strong> Tüm API
-              yanıtları sentetiktir. API/proxy grubu bir içe aktarımı temsil
-              eder; Apinizer bağlantısı ve doğrulanmış kurumsal kullanıcı
-              yoktur.
-            </p>
-            <span className="mp-note-tag">LOOPBACK ONLY</span>
-          </div>
+          <TargetNotice targetMode={service?.deployment?.targetMode} />
           {unavailable && (
             <div role="alert" className="mp-error">
               Panel durumu alınamıyor. Ekrandaki veriler son alınan kayıtlardır;
@@ -202,6 +186,32 @@ export default function Panel() {
               Yerel panel yükleniyor…
             </div>
           )}
+          <div className="mp-progress">
+            {[
+              ["OpenAPI yükle", !!state?.groups.length],
+              ["İşlemleri seç ve kaydet", !!service?.deployment],
+              [
+                "Upstream hedefini yapılandır",
+                service?.deployment?.targetMode === "api" ||
+                  service?.deployment?.targetMode === "synthetic",
+              ],
+              ["MCP hizmetini başlat", !!online],
+              ["Bağlantı JSON’unu indir", false],
+            ].map(([text, done], i) => (
+              <button
+                key={String(text)}
+                className={done ? "done" : ""}
+                onClick={() => {
+                  invalidate();
+                  setPage(i < 2 ? "catalog" : "service");
+                  window.scrollTo(0, 0);
+                }}
+              >
+                <span>{done ? "✓" : `0${i + 1}`}</span>
+                {text}
+              </button>
+            ))}
+          </div>
           {page === "overview" && (
             <>
               <OverviewService
@@ -213,29 +223,6 @@ export default function Panel() {
                   window.scrollTo(0, 0);
                 }}
               />
-              <div className="mp-progress">
-                {[
-                  ["API’yi içe aktar", !!state?.groups.length],
-                  ["GET / onaylı POST seç", !!service?.deployment],
-                  ["Seçimi kaydet", !!service?.deployment],
-                  ["MCP hizmetini başlat", !!online],
-                  ["MCP istemcisini bağla", false],
-                  ["Çağrıyı incele", false],
-                ].map(([text, done], i) => (
-                  <button
-                    key={String(text)}
-                    className={done ? "done" : ""}
-                    onClick={() => {
-                      invalidate();
-                      setPage(i < 3 ? "catalog" : i === 5 ? "logs" : "service");
-                      window.scrollTo(0, 0);
-                    }}
-                  >
-                    <span>{done ? "✓" : `0${i + 1}`}</span>
-                    {text}
-                  </button>
-                ))}
-              </div>
               <StatisticsView
                 stats={stats}
                 state={state}
@@ -255,36 +242,25 @@ export default function Panel() {
               onGroup={(id) => {
                 invalidate();
                 setGroupId(id);
-                setSelections([]);
+                setSelections(
+                  state?.workspace?.profiles.find((p) => p.groupId === id)
+                    ?.selections ?? [],
+                );
               }}
               onSelections={(value) => {
                 invalidate();
                 setSelections(value);
                 setNotice("");
               }}
-              onReadPostSample={() =>
-                void action("Sentetik POST tanımı yükleniyor", async () => {
-                  const imported = await panelJson<{ id: string }>(
-                    "read-post-sample",
-                    {},
-                  );
-                  setGroupId(imported.id);
-                  setSelections([]);
-                  setNotice(
-                    "Tamamen sentetik POST tanımı yüklendi. Şema ve salt-okuma onayı vermeden hiçbir POST etkinleşmez.",
-                  );
-                })
-              }
               onImport={(source) =>
                 void action("OpenAPI doğrulanıyor", async () => {
-                  const imported = await panelJson<{ id: string }>(
-                    source === undefined ? "sample" : "import",
-                    source === undefined ? {} : { source },
-                  );
+                  const imported = await panelJson<{ id: string }>("import", {
+                    source,
+                  });
                   setGroupId(imported.id);
                   setSelections([]);
                   setNotice(
-                    "OpenAPI doğrulandı. İzin vereceğiniz GET işlemlerini seçin.",
+                    "OpenAPI doğrulandı. GET veya onaylı POST işlemlerini seçip yapılandırın.",
                   );
                 })
               }
@@ -301,7 +277,11 @@ export default function Panel() {
                   window.scrollTo(0, 0);
                   setNotice(
                     first
-                      ? "Araç seçimi kaydedildi. MCP hizmetini başlatabilirsiniz."
+                      ? next.deployment?.targetMode === "unconfigured"
+                        ? "Seçim kaydedildi. Upstream hedefini yapılandırıp izinleri onaylayın."
+                        : next.deployment?.targetMode === "api"
+                          ? "Seçim ve hedef onayı korundu; hizmeti başlatabilirsiniz."
+                          : "Test profili seçimi kaydedildi. Gerçek API bağlantısı değildir."
                       : "Seçim ve POST onayları sunucudan kaldırıldı. Yeniden başlatmak için açık seçim gerekir.",
                   );
                 })
@@ -315,7 +295,7 @@ export default function Panel() {
                   const url = URL.createObjectURL(await response.blob());
                   const link = document.createElement("a");
                   link.href = url;
-                  link.download = "specwake-demo-server.zip";
+                  link.download = "specwake-server.zip";
                   link.click();
                   setTimeout(() => URL.revokeObjectURL(url), 1000);
                   setNotice(
@@ -328,8 +308,8 @@ export default function Panel() {
           {page === "catalog" && service?.deployment && (
             <div className="mp-catalog-next">
               <p>
-                Seçim kaydedildiğinde hizmeti başlatıp bağımsız istemciyi
-                bağlayabilirsiniz.
+                Seçim kaydedildi. Hizmet ekranında hedef durumunu ve bağlantı
+                seçeneklerini inceleyin.
               </p>
               <button
                 className="mp-button"
@@ -344,51 +324,89 @@ export default function Panel() {
             </div>
           )}
           {page === "service" && service && (
-            <ServiceConsole
-              desktopExecutable={state?.desktopClientExecutable}
-              service={service}
-              unavailable={unavailable}
-              canStart={draftSaved}
-              busy={busy}
-              callBusy={callBusy}
-              tool={tool}
-              args={args}
-              client={client}
-              result={result}
-              onTool={chooseTool}
-              onArgs={(value) => {
-                invalidate();
-                setArgs(value);
-              }}
-              onClient={(value) => {
-                invalidate();
-                setClient(value);
-              }}
-              onReset={() => chooseTool(tool)}
-              onCall={() => void runCall()}
-              onReview={() => {
-                invalidate();
-                setPage("catalog");
-                window.scrollTo(0, 0);
-              }}
-              onStart={() =>
-                void action(
-                  "MCP hizmeti doğrulanarak başlatılıyor",
-                  async () => {
-                    await panelApi("start", {});
+            <>
+              <UpstreamSettings
+                onDirty={setSettingsPending}
+                service={service}
+                workspace={state?.workspace}
+                busy={!!busy || unavailable}
+                onTarget={(target) =>
+                  void action("Hedef kaydediliyor", async () => {
+                    await panelApi("target", {
+                      groupId: service.deployment?.groupId,
+                      revision: service.deployment?.revision,
+                      target,
+                      approveSelection: true,
+                    });
                     setNotice(
-                      "MCP hizmeti SDK initialize ve tools/list kontrolünden geçti.",
+                      "Hedef ve seçili işlem izinleri kaydedildi. Upstream çağrısı yapılmadı.",
                     );
-                  },
-                )
-              }
-              onStop={() =>
-                void action("MCP hizmeti durduruluyor", async () => {
-                  await panelApi("stop", {});
-                  setNotice("MCP listener kapatıldı; çağrı kayıtları korundu.");
-                })
-              }
-            />
+                  })
+                }
+                onPort={(mcpPort) =>
+                  void action("Yerel port kaydediliyor", async () => {
+                    await panelApi("connection-settings", { mcpPort });
+                    setNotice(
+                      "Yerel MCP portu kaydedildi. Bağlantı JSON’unu yeniden indirin.",
+                    );
+                  })
+                }
+              />
+              <ServiceConsole
+                pendingSettings={settingsPending}
+                desktopExecutable={state?.desktopClientExecutable}
+                service={service}
+                unavailable={unavailable}
+                canStart={
+                  draftSaved &&
+                  !settingsPending &&
+                  ["synthetic", "api"].includes(
+                    service.deployment?.targetMode ?? "",
+                  )
+                }
+                busy={busy}
+                callBusy={callBusy}
+                tool={tool}
+                args={args}
+                client={client}
+                result={result}
+                onTool={chooseTool}
+                onArgs={(value) => {
+                  invalidate();
+                  setArgs(value);
+                }}
+                onClient={(value) => {
+                  invalidate();
+                  setClient(value);
+                }}
+                onReset={() => chooseTool(tool)}
+                onCall={() => void runCall()}
+                onReview={() => {
+                  invalidate();
+                  setPage("catalog");
+                  window.scrollTo(0, 0);
+                }}
+                onStart={() =>
+                  void action(
+                    "MCP hizmeti doğrulanarak başlatılıyor",
+                    async () => {
+                      await panelApi("start", {});
+                      setNotice(
+                        "MCP hizmeti SDK initialize ve tools/list kontrolünden geçti.",
+                      );
+                    },
+                  )
+                }
+                onStop={() =>
+                  void action("MCP hizmeti durduruluyor", async () => {
+                    await panelApi("stop", {});
+                    setNotice(
+                      "MCP listener kapatıldı; çağrı kayıtları korundu.",
+                    );
+                  })
+                }
+              />
+            </>
           )}
           {page === "logs" && (
             <StatisticsView

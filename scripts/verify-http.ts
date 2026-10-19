@@ -142,7 +142,8 @@ async function main() {
       origin = owned.origin;
       const restarted = await get("state");
       assert.equal(restarted.service.phase, "stopped");
-      assert.equal(restarted.groups.length, 0);
+      assert.equal(restarted.groups.length, 1);
+        assert.equal(restarted.groups[0].id,group.id);
       const persisted = await get(
         `statistics?minutes=10080&groupId=${group.id}`,
       );

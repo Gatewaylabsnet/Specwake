@@ -143,7 +143,8 @@ async function main() {
     token = (await (await fetch(studio.origin + "/api/session")).json()).token;
     const restarted = await get("state");
     const persisted = await get("statistics?minutes=10080");
-    assert.equal(restarted.groups.length, 0);
+    assert.equal(restarted.groups.length, 1);
+    assert.equal(restarted.groups[0].id,group.id);
     assert.equal(restarted.service.phase, "stopped");
     assert.equal(restarted.service.deployment, undefined);
     assert.equal(persisted.calls, 5);
@@ -264,7 +265,7 @@ async function main() {
       },
       persistence: {
         metadataRetained: true,
-        groupsRetained: false,
+        groupsRetained: true,
         manifestRetained: false,
         approvalsRetained: false,
       },

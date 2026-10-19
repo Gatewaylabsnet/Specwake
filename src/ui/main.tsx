@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import type { ImportedSpec, Selection, Tool } from '../core/model.js';
 import { inputSchema, NAME } from '../core/contracts.js';
 import './style.css';
+import './panel/panel.css';
 import {currentProbe,makeProbeReceipt,probeViewKey,sameProbeReceipt,type StoredProbe} from '../core/probe-context.js';
 import Panel from './panel/Panel.js';
 
@@ -94,7 +95,7 @@ function App() {
     });
   }
   const filteredOperations = doc?.operations.filter(o=>`${o.method} ${o.path} ${o.description}`.toLowerCase().includes(filter.toLowerCase())) ?? [];
-  return <div className="app">
+  return <div className="app"><p role="note">Geliştirici alanı · Sentetik test ve bağımsız stdio oluşturucu. Gerçek API bağlantısı değildir.</p>
     <header><a className="brand" href="/" aria-label="Specwake home"><span className="brand-mark"><Mark/></span><strong>Specwake</strong><span className="family">by GatewayLabs</span></a><div className="header-right"><a className="text-button" href="/panel">MCP yönetim paneli ↗</a><span className="local"><i/> Local workspace</span><span className="version">MVP / 0.1</span></div></header>
     <div className="shell">
       <aside><div className="aside-label">OPENAPI → MCP</div><h2>Give your API<br/>a new interface.</h2><p className="aside-intro">A small, deliberate path from your specification to an MCP server.</p><nav aria-label="Build steps">{steps.map((label,i)=><button key={label} className={`step ${step===i?'active':''} ${i<step?'done':''}`} disabled={!!busy || i>step || i>0&&!doc} aria-current={step===i?'step':undefined} onClick={()=>go(i)}><span className="step-number">{i<step?'✓':String(i+1).padStart(2,'0')}</span><span>{label}</span>{step===i&&<span className="step-arrow">›</span>}</button>)}</nav><div className="aside-footer"><span className="tiny-square"/> Built on your machine.<br/><span>No account. No AI service required.</span></div></aside>
@@ -132,4 +133,4 @@ function App() {
     </div>
   </div>;
 }
-createRoot(document.getElementById('root')!).render(location.pathname === '/panel' ? <Panel/> : <App/>);
+createRoot(document.getElementById('root')!).render(location.pathname === '/developer' ? <App/> : <Panel/>);

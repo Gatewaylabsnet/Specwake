@@ -29,7 +29,7 @@ export async function runDemoClient(argv: string[]) {
   };
   const endpoint = localEndpoint(option("--endpoint"));
   const client = new Client(
-    { name: "specwake-independent-demo", version: "0.2.0" },
+    { name: "specwake-independent-demo", version: "0.3.0" },
     { supportedProtocolVersions: [LATEST_PROTOCOL_VERSION] },
   );
   const correlations: string[] = [];

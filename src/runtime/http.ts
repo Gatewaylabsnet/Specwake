@@ -24,9 +24,9 @@ import {
   type ExecutionResult,
 } from "./errors.js";
 
-const targetSchema = z
+export const targetSchema = z
   .object({
-    mode: z.enum(["mock", "api"]),
+    mode: z.enum(["mock", "api", "local-test"]),
     baseUrl: z.string().max(1000),
     allowedAddresses: z
       .array(z.string().refine((v) => isIP(v) === 4))
@@ -34,7 +34,7 @@ const targetSchema = z
       .max(8),
     allowInsecureHttp: z.boolean().default(false),
     allowedReadPosts: z
-      .array(z.string().regex(/^POST \/[A-Za-z0-9/_{}~-]+$/))
+      .array(z.string().regex(/^POST \/[A-Za-z0-9/._{}~-]+$/))
       .max(64)
       .optional(),
     responseAdapter: envelopeSchema.optional(),
@@ -66,6 +66,8 @@ export function validateTarget(input: unknown): Target {
   const parsed = targetSchema.safeParse(input);
   if (!parsed.success) throw new RuntimeFault("SW_TARGET_INVALID");
   const config = parsed.data;
+  if (/[\u0000-\u0020\u007f\\]/.test(config.baseUrl))
+    throw new RuntimeFault("SW_TARGET_INVALID");
   let url: URL;
   try {
     url = new URL(config.baseUrl);
@@ -82,15 +84,20 @@ export function validateTarget(input: unknown): Target {
     throw new RuntimeFault("SW_TARGET_INVALID");
   const rawPath = config.baseUrl.replace(/^https?:\/\/[^/]+/, "");
   if (
-    !/^\/[A-Za-z0-9/_~-]*$/.test(rawPath || "/") ||
+    !/^\/[A-Za-z0-9/._~-]*$/.test(rawPath || "/") ||
     rawPath.split("/").some((p) => p === "." || p === "..")
   )
     throw new RuntimeFault("SW_TARGET_INVALID");
-  if (config.mode === "mock") {
+  if (
+    config.mode === "local-test" &&
+    !/^http:\/\/127\.0\.0\.1:[1-9][0-9]{0,4}(?:\/|$)/.test(config.baseUrl)
+  )
+    throw new RuntimeFault("SW_TARGET_FORBIDDEN");
+  if (config.mode === "mock" || config.mode === "local-test") {
     if (
       url.protocol !== "http:" ||
       url.hostname !== "127.0.0.1" ||
-      !url.port ||
+      (!url.port && config.mode === "mock") ||
       config.allowedAddresses.length !== 1 ||
       config.allowedAddresses[0] !== "127.0.0.1"
     )
@@ -175,7 +182,7 @@ export async function executeTool(
       throw new RuntimeFault("SW_REQUEST_TOO_LARGE");
     const headers: Record<string, string> = {
       Accept: "application/json",
-      "User-Agent": "Specwake/0.2.0",
+      "User-Agent": "Specwake/0.3.0",
     };
     const secrets: string[] = [];
     if (tool.auth.kind !== "none") {

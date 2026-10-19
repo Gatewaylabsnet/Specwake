@@ -25,7 +25,7 @@ Timeout: 5 seconds; successful response limit: 256 KiB. Redirects and non-2xx re
 
 The runtime validates the selected manifest at startup and validates arguments again before execution. Failures carry stable `SW_*` codes with fixed messages and recovery hints; see [ERROR_CODES.md](ERROR_CODES.md). Startup errors go only to stderr. Parameter keys are prefixed `path_` / `query_`. GET scalar parameters and explicitly approved POST JSON object bodies are supported. POST adds a required top-level `body` object; path/query fields retain their prefixes. The runtime has no general-purpose HTTP tool. A local operator can edit this package; the manifest is not a protection against someone who can rewrite the runtime itself.
 
-Generated with Specwake 0.2.0, under Apache-2.0. Dependency licenses are retained in installed packages. This package contains independently implemented Specwake runtime code; no Specfold code or assets.
+Generated with Specwake 0.3.0, under Apache-2.0. Dependency licenses are retained in installed packages. This package contains independently implemented Specwake runtime code; no Specfold code or assets.
 
 ## Explicit read-only POST policy
 

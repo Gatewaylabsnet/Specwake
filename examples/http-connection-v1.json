@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "name": "Specwake synthetic local demo",
+  "transport": "streamable-http",
+  "endpoint": "http://127.0.0.1:54321/mcp",
+  "authentication": {"type": "none"},
+  "scope": "same-machine"
+}

@@ -24,6 +24,7 @@ export interface Deployment {
   groupId: string;
   manifest: Manifest;
   revision: string;
+  targetMode: "synthetic" | "unconfigured" | "api";
 }
 export class DemoMcpService {
   private listener?: Server;
@@ -37,10 +38,10 @@ export class DemoMcpService {
   private epoch = 0;
   private readonly tasks = new Set<Promise<void>>();
   constructor(
-    private readonly target: Target,
+    private target: Target,
     private readonly sink: EventSink,
-    private readonly listeners: DemoListeners = localListeners,
-    private readonly executionContext: ExecutionContext = {},
+    private listeners: DemoListeners = localListeners,
+    private executionContext: ExecutionContext = {},
   ) {}
   state() {
     return {
@@ -52,27 +53,67 @@ export class DemoMcpService {
       protocol: MCP_PROTOCOL,
       lastError: this.lastError,
       inflight: this.inflight,
+      configuredEndpoint: this.listeners.mcpPort
+        ? `http://127.0.0.1:${this.listeners.mcpPort}/mcp`
+        : undefined,
     };
   }
-  configure(groupId: string, manifest: Manifest) {
+  setExecution(target: Target, context: ExecutionContext, port: number) {
+    if (!["stopped", "error"].includes(this.phase))
+      throw new PanelFault(
+        409,
+        "SERVICE_ACTIVE",
+        "Ayarları değiştirmeden önce hizmeti durdurun.",
+      );
+    this.target = target;
+    this.executionContext = context;
+    this.listeners = { ...this.listeners, mcpPort: port };
+  }
+  configure(
+    groupId: string,
+    manifest: Manifest,
+    targetMode: Deployment["targetMode"] = "synthetic",
+  ) {
     if (!["stopped", "error"].includes(this.phase))
       throw new PanelFault(
         409,
         "SERVICE_ACTIVE",
         "Seçimi değiştirmeden önce MCP hizmetini durdurun.",
       );
-    this.deployment = { groupId, manifest, revision: randomUUID() };
+    this.deployment = { groupId, manifest, revision: randomUUID(), targetMode };
     this.lastError = undefined;
     return this.state();
   }
   clear() {
-    if (!["stopped", "error"].includes(this.phase)) throw new PanelFault(409,"SERVICE_ACTIVE","Onayı kaldırmadan önce hizmeti durdurun.");
-    this.deployment=undefined; this.runId=undefined; this.lastError=undefined;
+    if (!["stopped", "error"].includes(this.phase))
+      throw new PanelFault(
+        409,
+        "SERVICE_ACTIVE",
+        "Onayı kaldırmadan önce hizmeti durdurun.",
+      );
+    this.deployment = undefined;
+    this.runId = undefined;
+    this.lastError = undefined;
     return this.state();
   }
   async start() {
     if (!this.deployment)
       throw new PanelFault(409, "SELECT_TOOLS", "Önce araç seçimini kaydedin.");
+    if (this.deployment.targetMode === "unconfigured")
+      throw new PanelFault(
+        409,
+        "TARGET_NOT_CONFIGURED",
+        "API hedefi onaylanmamış. Seçili işlemler için upstream hedefini ve izinleri onaylayın.",
+      );
+    if (
+      this.deployment.targetMode === "api" &&
+      this.listeners.bindAddress !== "127.0.0.1"
+    )
+      throw new PanelFault(
+        409,
+        "LOOPBACK_REQUIRED",
+        "Gerçek upstream MCP hizmeti yalnız 127.0.0.1 üzerinde başlatılabilir.",
+      );
     if (!["stopped", "error"].includes(this.phase))
       throw new PanelFault(
         409,
@@ -114,14 +155,17 @@ export class DemoMcpService {
         throw new Error("Health check failed");
       this.phase = "running";
       return this.state();
-    } catch {
+    } catch (error) {
       await this.closeListener();
       this.phase = "error";
-      this.lastError = "MCP_START_FAILED";
+      const conflict = (error as NodeJS.ErrnoException).code === "EADDRINUSE";
+      this.lastError = conflict ? "MCP_PORT_IN_USE" : "MCP_START_FAILED";
       throw new PanelFault(
         503,
-        "MCP_START_FAILED",
-        "MCP hizmeti başlatılamadı; yerel portu ve kayıt dizinini kontrol edin.",
+        this.lastError,
+        conflict
+          ? "Kayıtlı MCP portu kullanımda. Mevcut süreci kapatmadan başka yerel port seçebilir; sonra bağlantı JSON’unu yenileyebilirsiniz."
+          : "MCP hizmeti başlatılamadı; yerel portu ve kayıt dizinini kontrol edin.",
       );
     }
   }
@@ -160,7 +204,7 @@ export class DemoMcpService {
         "Önce MCP hizmetini başlatın.",
       );
     const client = new Client(
-      { name: "specwake-local-demo", version: "0.2.0" },
+      { name: "specwake-local-demo", version: "0.3.0" },
       { supportedProtocolVersions: [MCP_PROTOCOL] },
     );
     const transport = new StreamableHTTPClientTransport(

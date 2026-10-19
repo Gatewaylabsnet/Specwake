@@ -1,51 +1,33 @@
-# Specwake 0.2.0 — Windows demo kurulumu
+# Specwake 0.3.0 — Windows ilk kullanım
 
-Bu paket yerel, sentetik API/MCP yönetim demosudur. Gerçek Apinizer bağlantısı, kurumsal kullanıcı kimliği veya yetkilendirmesi sağlamaz. Panel ve MCP hizmeti yalnız bilgisayarın loopback adresinden erişilir.
+Windows x64 Portable ve kullanıcıya özel Setup aynı uygulamadır. EXE uygulaması ve paket içindeki ayrı HTTP MCP istemcisi Node.js/npm, kaynak kodu veya internet gerektirmez. Bağımsız stdio ZIP için Node.js 24+ ve ilk npm kurulumu gerekir. API çağrıları elbette yapılandırdığınız hedefe erişim gerektirir.
 
-## Gerekenler
+## Kurulum ve güncelleme
 
-- Windows x64, kullanıcı hesabınızın yazabildiği bir klasör.
-- Specwake uygulaması ve içindeki bağımsız HTTP MCP demo istemcisi için **Node.js, npm, kaynak kodu veya internet gerekmez**.
-- Uygulamanın dışa aktardığı bağımsız **stdio sunucu ZIP'ini** başka yerde çalıştırmak farklı bir kullanım biçimidir: Node.js 24+ ve ilk npm kurulumu gerekir. Bu gereksinim EXE içindeki demo istemcisine ait değildir.
-- Paketler bu teslimde imzasızdır. SmartScreen/kurum cihaz politikası açılışı engelleyebilir. Engeli otomatik aşan veya korumaları kapatan bir yöntem sağlanmaz; kurum yöneticisinin onaylı dağıtım politikası gerekir.
+1. Önce açık eski Specwake penceresini normal şekilde kapatın. Aynı kullanıcı verisiyle iki kopyayı aynı anda çalıştırmayın.
+2. `Specwake-0.3.0-Portable-x64.exe` dosyasını açın veya `Specwake-0.3.0-Setup-x64.exe` ile kullanıcıya özel kurulum yapın. Setup yönetici yükseltmesi gerektirmez. Kaldırma Windows Yüklü Uygulamalar üzerinden yapılır; kişisel verinin silineceğini varsaymayın.
+3. `Get-FileHash .\Specwake-0.3.0-Portable-x64.exe -Algorithm SHA256` sonucunu teslimdeki `SHA256SUMS-0.3.0.txt` ile karşılaştırın. Paketler imzasızdır; checksum yayıncı imzası değildir. Kurum cihaz politikası varsa onaylı dağıtım sürecini kullanın.
 
-## İki kullanım seçeneği
+Portable, veriyi EXE yanında taşımaz: Electron kullanıcı profili içindeki mevcut `demo-data` klasörünü kullanır. Eski çağrı kayıtları korunur. 0.2 sürümündeki bellekte tutulan gruplar/seçimler geri getirilemez; 0.3 ilk kullanımında tekrar yüklenir. Bundan sonraki gruplar/seçimler/onaylar/hedef ve MCP portu kaydedilir. Hizmet uygulama açılışında **durmuş** başlar.
 
-**Portable:** `Specwake-0.2.0-Portable-x64.exe` dosyasını yerel bir klasöre kopyalayıp açın. Kurulum gerekmez. Uygulama kullanıcı verisini kullanıcı profilinde saklar; dosya tamamen iz bırakmadan çalışan bir veri taşıma biçimi değildir.
+## Beş dakikalık akış
 
-**Kurulum:** `Specwake-0.2.0-Setup-x64.exe` dosyasını açın. Kullanıcıya özel kurulumdur, yönetici yükseltmesi istemez. Kurulum konumu ve kısayollar sihirbazdan seçilir. Sonrasında Specwake kısayolunu açın. Kurulumu kaldırmak için Windows'un Yüklü Uygulamalar ekranından Specwake'i seçin. Kaldırmanın kişisel demo verisini sileceğini varsaymayın; veri yönetimi ayrı değerlendirilmelidir.
+1. **API grupları & araçlar → OpenAPI yükle**: kendi izinli JSON/YAML OpenAPI dosyanızı seçin. İçe aktarma API çağrısı yapmaz; `servers` alanı otomatik hedef olmaz.
+2. GET işlemlerini seçin. Salt okunur POST gerekiyorsa açıklama, body şeması ve ayrı onayları inceleyin. POST yan etki yapmayacağı teknik olarak kanıtlanmış değildir; yalnız operatörce izin verilen sorguları seçin. **Seçimi kaydet**.
+3. **MCP hizmeti → API hedefini yapılandırın**: HTTPS sabit base URL ve hedefin tam IPv4 adreslerini girin. Yerel test için yalnız açık `http://127.0.0.1:PORT` modu vardır. POST varsa gerçek yanıt zarfına uygun adaptör alanlarını ayarlayın. Seçimi/hedefi gözden geçirip onaylayarak kaydedin. Kaydetmek çağrı yapmaz.
+4. **Hizmeti başlat → Bağlantı JSON’unu indir**. Yerel MCP adresi `http://127.0.0.1:<kaydedilen-port>/mcp` olur. Aynı bilgisayardaki uyumlu istemciye JSON'u verin; initialize ve güncel tools/list gerekir. Panelin geliştirici bölümündeki EXE istemci komutu da ayrı süreçte çalışır.
+5. Sentetik/izinli değerlerle açık bir çağrı yapın. Genel bakış ve çağrı kaydından süre, sonuç, güvenli hata ve korelasyon kimliğini inceleyin. Sonunda hizmeti durdurun. Uygulamayı yeniden açıp hizmeti başlatınca port değişmedikçe aynı JSON kullanılabilir.
 
-İki seçenek aynı uygulamadır; aynı anda iki ayrı kurulumdan çalıştırmayın. Uygulama açıldığında yönetim paneli gelir. Önceki bağımsız stdio oluşturucuya sol menüdeki **Bağımsız sunucu oluşturucu** bağlantısından erişilir.
+İstemci etiketi doğrulanmış kullanıcı değildir. Aynı makinedeki MCP erişimi kimlik doğrulamasızdır. `127.0.0.1` diğer bilgisayara erişim sağlamaz. DeepSeek uygulamasında yerel importer/bağlantı ayrıca uygulanmalıdır; bu teslimde DeepSeek uygulaması test edilmedi.
 
-## Beş dakikalık ilk demo
+## Hedef kimlik bilgileri ve sorunlar
 
-1. **API grupları & araçlar → Demo API ekle** kullanın. `/services`, `/summary`, `/simulate/error`, `/simulate/slow` GET'lerini seçin. POST ve `/services/{id}` seçili olmasın. Hiçbir işlem kendiliğinden seçilmez.
-2. **Seçimi kaydet → Hizmeti başlat** kullanın. Gerçek SDK sağlık kontrolünden sonra hizmet çalışıyor görünür.
-3. **MCP hizmeti** ekranında **Başarı, hata ve gecikme demosunu ayrı istemciyle çalıştır** bölümünü açın. **Tam demo komutunu kopyala** düğmesine basın.
-4. Windows PowerShell'i açıp komutu yapıştırın. Komut mevcut EXE'yi ayrı bir istemci sürecinde çalıştırır; global Node/npm gerekmez. Terminal açık kalır ve JSON raporu görünür. Listeleme için üstteki **İstemci komutunu kopyala** seçeneği kullanılabilir. Komutun sonuna elle ek yapmak yerine hazırlanmış tam demo komutunu kullanın.
-5. **Genel bakış → Görünümü yenile**: boş veri dizininde beş deneme ve iki hata (%40) beklenir. Bunlardan biri kontrollü 503, diğeri seçilmeyen araç reddidir. Gecikmeli araç yaklaşık 1,6 saniye bekler. Önceki kayıtlar varsa toplam farklıdır; filtre kullanın, veriyi silmeyin.
-6. Çağrı zamanına tıklayıp güvenli metadata ayrıntısını ve korelasyon kimliğini inceleyin. Yerel istemci etiketi doğrulanmış kullanıcı değildir. **MCP hizmeti → Durdur** portu kapatır. Pencereyi kapatmak uygulamanın kendi yerel sunucularını da kapatır.
+Bearer için `SPECWAKE_BEARER_TOKEN`, X-* API key için `SPECWAKE_API_KEY` yalnız Specwake'i başlatan sürecin ortamından okunur. Değerleri panel/URL/JSON/loga girmeyin. `.env` otomatik yüklenmez. Token edinme/yenileme, SSO/LDAP ve kurumsal kullanıcı yetkilendirmesi yoktur.
 
-Portable EXE kendi dosyalarını geçici bir yere açabilir. Panelin ürettiği istemci komutunu yalnız uygulama açıkken kullanın; uygulama/hizmet yeniden açıldığında adresi ve komutu tekrar kopyalayın. Komutu kaynak koddaki sabit bir portla değiştirmeyin.
+- Port doluysa başka porta sessiz geçilmez. Başka süreci kapatmadan durmuş hizmette açık port seçip kaydedin; bu durumda bağlantı JSON’unu yeniden alın.
+- Hedef/seçimler değişince yeniden onay gerekebilir. Kaydedilmemiş hedef/port taslağı varken başlatma kapalıdır.
+- Eski 0.2 bağlantı JSON'u şema v1 ile uyumludur; eski dinamik adres artık aynı olmayabilir. 0.3'e geçerken bir kez yeni JSON alın. Sonraki stop/start ve uygulama yeniden açılışında aynı port korunur.
+- Kilitli/bozuk veri dosyalarını otomatik silmeyin. Önce uygulamayı kapatıp `demo-data` klasörünü yedekleyin. Bozuk veya bilinmeyen workspace sürümü korunarak hata verir.
+- Çağrı body/header/argümanları ve credential saklanmaz. Metadata en çok 7 gün / 5.000 olaydır. OpenAPI açıklamalarına veya serbest etiketlere sır yazmayın. Sonuç maskelemesi tüm kişisel veri türlerini bulma garantisi değildir.
 
-## Kayıtlar ve sorun çözme
-
-Metadata kullanıcı profili altındaki Electron uygulama-verisi klasörünün `demo-data` dizinindedir. En çok 7 gün / 5.000 olay saklanır; gövde/header/argüman/credential kaydı tutulmaz. Uygulama yeniden açıldığında kayıtlar korunur; gruplar/seçimler tekrar eklenir ve hizmet durmuş başlar.
-
-- Başlat düğmesi kapalıysa API kataloğunda GET seçimini tekrar gözden geçirip kaydedin. Tarayıcı/sayfa yenilemesi izinleri kendiliğinden geri yüklemez.
-- Kopyalama engellenirse ekrandaki görünür komutu seçerek kopyalayın.
-- İstemci bağlanamıyorsa hizmetin çalıştığını, güncel komutu kullandığınızı ve aynı bilgisayarda olduğunuzu kontrol edin.
-- Kayıt dizini kilitliyse başka Specwake süreci olup olmadığını kontrol edin. Var olan süreci veya veri dosyasını otomatik silmeyin. Zorla kapanış sonrası kalan `writer.lock` ancak hiçbir süreç dizini kullanmıyorsa operatörce değerlendirilir.
-- SHA-256 doğrulaması için `Get-FileHash .\Specwake-0.2.0-Portable-x64.exe -Algorithm SHA256` sonucunu aynı teslimdeki `SHA256SUMS-0.2.0.txt` ile karşılaştırın. Checksum, yayıncı imzasının yerine geçmez.
-
-Temiz Windows kurulum/kaldırma testi için `WINDOWS_DELIVERY_VERIFICATION.md` içindeki ayrı Sandbox kabul kapısı esas alınır. Mevcut geliştirme bilgisayarındaki paket testleri temiz Windows kurulumunun yapıldığı anlamına gelmez.
-
-## Kontrollü JSON POST demosu (0.2.0)
-
-API kataloğunda **JSON POST demosu ekle** seçin. `/realPersonSearch` işlemini filtreleyip incelemesini açın. JSON object taslağı örnek değer taşımaz ve zorunluluk tahmin etmez. Bu sentetik demo için `required: ["IdNo"]` ekleyin; açıklamayı ve üç ayrı onayı gözden geçirin, ardından satırı seçip kaydedin. Hizmeti başlatın, maskeli IdNo alanına yalnız `DEMO-ID-0001` yazıp çağırın. `demo-app-error`, `demo-empty`, `demo-partial`, `demo-slow` değerleri kontrollü senaryolardır.
-
-HTTP 200 tek başına başarı/tamlık değildir. Yanıt kaynak işlem ve zamanını içerir; `complete:false` tamlık doğrulanmadığını belirtir. Kişisel alanlar maskelenir, çağrı gövdeleri journal'a yazılmaz. Hizmeti durdurup tüm seçimleri kaldırarak **Seçimi kaydet** işlemi kayıtlı manifesti iptal eder. Yeniden etkinleştirme yeni inceleme gerektirir. Gruplar, manifest ve onaylar uygulama yeniden başlatılınca geri yüklenmez; yalnız çağrı metadata'sı korunur.
-
-Ayrıntılar ve bağımsız SDK sözleşmesi: `READ_POST_DEMO.md`, `DEEPSEEK_CLIENT_PROMPT.md`. Başka bilgisayardaki istemci bu bilgisayarın `127.0.0.1` adresine erişemez; bu sürüm uzak ağ yayını veya kurumsal auth sağlamaz.
-
-Tek POST çağrısını EXE istemcisiyle yaparken `--tool=realPersonSearch_bad4aebae3` ve tek argüman olarak `--args={"body":{"IdNo":"DEMO-ID-0001"}}` biçimini kullanın. Windows Electron ayrı `--tool DEĞER` argümanını dosya/URL gibi yorumlayabilir. Bağlantı SDK örneğini panelden almak bu CLI ayrıntısını gerektirmez.
+Ayrıntılar: `Specwake-0.3.0-Yonetim.md` ve `Specwake-0.3.0-DeepSeek-Prompt.md` teslim dosyaları; kaynakta [gerçek upstream rehberi](REAL_UPSTREAM.md).

@@ -46,8 +46,26 @@ export function usePanelController() {
     !!service?.deployment &&
     service.deployment.groupId === groupId &&
     service.deployment.manifest.tools.length === selections.length &&
-    service.deployment.manifest.tools.every(t => selections.some(s => s.id === t.operationId && s.name === t.name && s.description === t.description &&
-      (t.method === 'GET' ? !!s.readOnlyConfirmed === !!t.readOnlyConfirmed : s.readOnlyConfirmed === true && s.responseAdapterApproved === true && s.bodyOverrideApproved === true && JSON.stringify(s.bodyOverride) === JSON.stringify(t.bodySchema))));
+    service.deployment.manifest.tools.every((t) =>
+      selections.some(
+        (s) =>
+          s.id === t.operationId &&
+          s.name === t.name &&
+          s.description === t.description &&
+          (t.method === "GET"
+            ? !!s.readOnlyConfirmed === !!t.readOnlyConfirmed
+            : s.readOnlyConfirmed === true &&
+              s.responseAdapterApproved === true &&
+              (s.bodyOverride === undefined
+                ? JSON.stringify(
+                    group?.operations.find((o) => o.id === s.id)?.requestBody
+                      ?.schema,
+                  ) === JSON.stringify(t.bodySchema)
+                : s.bodyOverrideApproved === true &&
+                  JSON.stringify(s.bodyOverride) ===
+                    JSON.stringify(t.bodySchema))),
+      ),
+    );
   const key = callViewKey(
     service?.runId,
     service?.deployment?.revision,
@@ -108,9 +126,22 @@ export function usePanelController() {
     service?.phase,
     invalidate,
   ]);
+  const hydrated = useRef(false);
   useEffect(() => {
-    if (!groupId && state?.groups[0]) setGroupId(state.groups[0].id);
-  }, [state?.groups, groupId]);
+    if (!state || hydrated.current) return;
+    hydrated.current = true;
+    const d = state.service.deployment;
+    const profile = state.workspace?.profiles.find(
+      (p) => p.groupId === d?.groupId,
+    );
+    setGroupId(d?.groupId ?? state.groups[0]?.id ?? "");
+    if (d && profile) {
+      setSelections(profile.selections);
+      const first = d.manifest.tools[0];
+      setTool(first?.name ?? "");
+      setArgs(first ? toolDefaults(first) : "{}");
+    }
+  }, [state]);
   async function action(name: string, fn: () => Promise<void>) {
     setBusy(name);
     setError("");
@@ -128,8 +159,10 @@ export function usePanelController() {
   const chooseTool = (name: string) => {
     invalidate();
     setTool(name);
-    const selected=service?.deployment?.manifest.tools.find(t=>t.name===name);
-    setArgs(selected?toolDefaults(selected):'{}');
+    const selected = service?.deployment?.manifest.tools.find(
+      (t) => t.name === name,
+    );
+    setArgs(selected ? toolDefaults(selected) : "{}");
   };
   async function runCall() {
     if (!service?.deployment || !service.runId) return;

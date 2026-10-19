@@ -44,7 +44,7 @@ export function BodyForm({
           checked={visible}
           onChange={(e) => setVisible(e.target.checked)}
         />{" "}
-        Sentetik form değerlerini göster
+        Form değerlerini göster
       </label>
       {properties.map(([name, schema]) => (
         <label key={name}>
@@ -54,7 +54,7 @@ export function BodyForm({
             <textarea
               aria-label={`${name} JSON`}
               disabled={!visible}
-              placeholder="Önce sentetik değerleri göster seçeneğini açın"
+              placeholder="Önce form değerlerini göster seçeneğini açın"
               value={
                 visible
                   ? (drafts[name] ??

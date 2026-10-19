@@ -38,6 +38,7 @@ export async function startStudio(port = 4318, options: ProbeOptions & {panelDat
   const mock = await startMock();
   let probing = false;
   let panel: Promise<Awaited<ReturnType<typeof createPanel>>> | undefined;
+  let closing:Promise<void>|undefined;
   const server = createServer(async (req,res) => {
     res.setHeader('X-Content-Type-Options','nosniff');
     res.setHeader('Referrer-Policy','no-referrer');
@@ -89,7 +90,7 @@ export async function startStudio(port = 4318, options: ProbeOptions & {panelDat
       }
       if (path.startsWith('/api/')) return json(res,404,{error:'Unknown action.'});
       if (req.method !== 'GET' && req.method !== 'HEAD') return json(res,405,{error:'Method not allowed.'});
-      const asset = ['/', '/panel'].includes(path) ? 'index.html' : /^\/assets\/[A-Za-z0-9_-]+\.(js|css)$/.test(path) ? path.slice(1) : undefined;
+      const asset = ['/', '/panel', '/developer'].includes(path) ? 'index.html' : /^\/assets\/[A-Za-z0-9_-]+\.(js|css)$/.test(path) ? path.slice(1) : undefined;
       if (!asset) return json(res,404,{error:'Not found.'});
       try {
         const bytes = await readFile(resolve(root,'dist/ui',asset));
@@ -104,11 +105,11 @@ export async function startStudio(port = 4318, options: ProbeOptions & {panelDat
   console.error(`Specwake ready: ${origin}`);
   server.headersTimeout = 10000;
   server.requestTimeout = 10000;
-  return {server,origin,close:async () => {
+  return {server,origin,close:() => closing??=(async () => {
     await new Promise<void>(resolve => server.close(() => resolve()));
     if (panel) { const active = await panel.catch(() => undefined); await active?.close(); }
     await mock.close();
-  }};
+  })()};
 }
 if (process.argv[1] && resolve(process.argv[1]) === resolve(import.meta.filename)) {
   try {

@@ -35,7 +35,7 @@ export function OverviewService({
           <p>
             {running
               ? service.endpoint
-              : "API seçiminizi kaydedin ve hizmet ekranında başlatın."}
+              : "OpenAPI yükleyip işlemleri hazırlayın. Başlatma için API hedefi gerekir."}
           </p>
         </div>
       </div>
@@ -49,9 +49,7 @@ export function OverviewService({
         </span>
       </div>
       <button className="mp-button mp-button-green" onClick={onOpen}>
-        {service?.deployment
-          ? "Hizmeti ve bağlantıyı aç →"
-          : "Demo akışını başlat →"}
+        {service?.deployment ? "Hizmeti ve bağlantıyı aç →" : "OpenAPI yükle →"}
       </button>
     </section>
   );

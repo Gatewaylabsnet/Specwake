@@ -323,7 +323,8 @@ test("real HTTP MCP lifecycle, selection, safe journal, statistics and restart p
       await fetch(studio.origin + "/api/panel/state")
     ).json();
     assert.equal(state.service.phase, "stopped");
-    assert.equal(state.groups.length, 0);
+    assert.equal(state.groups.length, 1);
+    assert.equal(state.groups[0].id,group.id);
     const invalid = await post("import", { source: "openapi: [secret-input]" });
     assert.equal(invalid.status, 400);
     assert.ok(!JSON.stringify(invalid.data).includes("secret-input"));
@@ -343,11 +344,8 @@ test("real HTTP MCP lifecycle, selection, safe journal, statistics and restart p
       }),
     });
     assert.equal(unknownTarget.status, 200);
-    assert.ok(
-      unknownTarget.data.operations.find(
-        (o: any) => o.path === "/not-a-fixture",
-      ).issues.length,
-    );
+    assert.equal(unknownTarget.data.targetMode,'unconfigured');
+    assert.equal(unknownTarget.data.operations.find((o:any)=>o.path==='/not-a-fixture').issues.length,0);
     assert.equal(
       unknownTarget.data.operations.find((o: any) => o.path === "/summary")
         .issues.length,
@@ -355,13 +353,7 @@ test("real HTTP MCP lifecycle, selection, safe journal, statistics and restart p
     );
     const badSelection = await post("configure", {
       groupId: unknownTarget.data.id,
-      selections: unknownTarget.data.operations
-        .filter((o: any) => o.issues.length)
-        .map((o: any) => ({
-          id: o.id,
-          name: o.name,
-          description: o.description,
-        })),
+      selections: [{id:'GET /forged-missing',name:'missing',description:'not present'}],
     });
     assert.equal(badSelection.status, 400);
     for (const secret of [

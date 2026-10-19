@@ -14,7 +14,12 @@ export async function desktopPanelSelfTest(
   const state = await get("state");
   assert.equal(state.desktopClientExecutable, process.execPath);
   assert.equal(state.service.phase, "stopped");
-  const group = (await (await post("panel/sample", {})).json()) as ApiGroup;
+  const group: ApiGroup =
+    state.groups.find(
+      (g: ApiGroup) =>
+        g.targetMode === "synthetic" &&
+        g.operations.some((op) => op.path === "/services"),
+    ) ?? (await (await post("panel/sample", {})).json());
   const paths = ["/services", "/summary", "/simulate/error", "/simulate/slow"];
   const selections = group.operations
     .filter((op) => op.method === "GET" && paths.includes(op.path))
@@ -22,6 +27,7 @@ export async function desktopPanelSelfTest(
   assert.equal(selections.length, 4);
   await post("panel/configure", { groupId: group.id, selections });
   const running = await (await post("panel/start", {})).json();
+  const groupBefore = await get(`statistics?minutes=10080&groupId=${group.id}`);
   let evidence: any;
   try {
     // This is another executable process, not the panel's /call API or global Node.js.
@@ -40,17 +46,21 @@ export async function desktopPanelSelfTest(
     assert.equal(independent.calls.length, 5);
     assert.equal(independent.tools.length, 4);
     const stats = await get(`statistics?minutes=10080&groupId=${group.id}`);
-    assert.equal(stats.calls, 5);
-    assert.equal(stats.errors, 2);
+    assert.equal(stats.calls, groupBefore.calls + 5);
+    assert.equal(stats.errors, groupBefore.errors + 2);
     assert.deepEqual(
-      new Set(stats.recent.map((e: CallEvent) => e.id)),
+      new Set(
+        stats.recent
+          .filter((e: CallEvent) => independent.correlations.includes(e.id))
+          .map((e: CallEvent) => e.id),
+      ),
       new Set(independent.correlations),
     );
     evidence = {
       managementPanel: true,
       bundledIndependentClient: true,
-      calls: stats.calls,
-      errors: stats.errors,
+      calls: 5,
+      errors: 2,
       retainedBefore: before.calls,
       retainedAfter: before.calls + 5,
       retainedIds: stats.recent.map((e: CallEvent) => e.id),
@@ -63,9 +73,12 @@ export async function desktopPanelSelfTest(
       fetch(running.endpoint, { signal: AbortSignal.timeout(1500) }),
     );
   }
-  const postGroup = (await (
-    await post("panel/read-post-sample", {})
-  ).json()) as ApiGroup;
+  const postGroup: ApiGroup =
+    state.groups.find(
+      (g: ApiGroup) =>
+        g.targetMode === "synthetic" &&
+        g.operations.some((op) => op.path === "/realPersonSearch"),
+    ) ?? (await (await post("panel/read-post-sample", {})).json());
   const postOperation = postGroup.operations.find(
     (op) => op.path === "/realPersonSearch",
   )!;
@@ -121,7 +134,9 @@ export async function desktopPanelSelfTest(
   } finally {
     await post("panel/stop", {});
   }
-  await assert.rejects(fetch(postRunning.endpoint, {signal:AbortSignal.timeout(1500)}));
+  await assert.rejects(
+    fetch(postRunning.endpoint, { signal: AbortSignal.timeout(1500) }),
+  );
   const all = await get("statistics?minutes=10080");
   assert.equal(all.calls, before.calls + 7);
   return {

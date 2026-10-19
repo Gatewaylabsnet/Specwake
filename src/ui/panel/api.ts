@@ -8,6 +8,7 @@ export type PanelState = {
   clientLabels: string[];
   persistence: string;
   desktopClientExecutable?: string;
+  workspace?:ReturnType<import('../../panel/workspace.js').Workspace['publicState']>;
 };
 let session: Promise<string> | undefined;
 export async function panelApi(

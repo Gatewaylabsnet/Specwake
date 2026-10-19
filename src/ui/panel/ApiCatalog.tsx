@@ -12,8 +12,7 @@ interface Props {
   hasDeployment: boolean;
   onGroup(id: string): void;
   onSelections(value: Selection[]): void;
-  onImport(source?: string): void;
-  onReadPostSample(): void;
+  onImport(source: string): void;
   onSave(): void;
   onExport(): void;
 }
@@ -82,28 +81,12 @@ export function ApiCatalog(p: Props) {
           />
           <button
             className="mp-button"
-            disabled={p.busy || p.locked}
+            disabled={p.busy || p.locked || p.groups.length >= 8}
             onClick={() => file.current?.click()}
           >
             ↑ OpenAPI yükle
           </button>
-          <button
-            className="mp-button mp-button-dark"
-            disabled={p.busy || p.locked || p.groups.length >= 8}
-            onClick={() => p.onImport()}
-          >
-            ＋ Demo API ekle
-          </button>
         </div>
-      </div>
-      <div className="mp-button-row" style={{ padding: "0 24px 16px" }}>
-        <button
-          className="mp-button"
-          disabled={p.busy || p.locked || p.groups.length >= 8}
-          onClick={p.onReadPostSample}
-        >
-          JSON POST demosu ekle
-        </button>
       </div>
       {fileError && (
         <div role="alert" className="mp-error">
@@ -115,11 +98,11 @@ export function ApiCatalog(p: Props) {
           <span>↗</span>
           <h3>İlk API grubunuzu ekleyin</h3>
           <p>
-            Sentetik Operations Demo API ile başlayın veya uyumlu JSON/YAML
-            dosyasını yükleyin.
+            OpenAPI 3.0/3.1 JSON veya YAML dosyanızı yükleyin. İşlemleri seçip
+            açıklama ve şemalarını gözden geçirin.
             <br />
             Hiçbir işlem kendiliğinden seçilmez. Dosyadaki sunucu adresleri
-            kullanılmaz.
+            otomatik bağlanmaz; hedef yapılandırması ayrıca gerekir.
           </p>
         </div>
       ) : (
@@ -137,7 +120,10 @@ export function ApiCatalog(p: Props) {
                   <strong>{g.title}</strong>
                   <small>
                     Grup {String(i + 1).padStart(2, "0")} ·{" "}
-                    {g.operations.length} endpoint · Demo proxy
+                    {g.operations.length} endpoint ·{" "}
+                    {g.targetMode === "synthetic"
+                      ? "Sentetik test profili"
+                        : "Yüklenen OpenAPI"}
                   </small>
                 </span>
                 <span className="mp-chip">OAS {g.version}</span>
@@ -211,7 +197,7 @@ export function ApiCatalog(p: Props) {
                   </th>
                   <th>İşlem / endpoint</th>
                   <th>MCP aracı</th>
-                  <th>Uygunluk</th>
+                    <th>Şema durumu</th>
                 </tr>
               </thead>
               <tbody>
@@ -255,6 +241,7 @@ export function ApiCatalog(p: Props) {
                         <OperationReview
                           key={`${p.group!.id}:${op.id}`}
                           operation={op}
+                          saved={p.selections.find(s=>s.id===op.id)}
                           locked={p.locked}
                           onReview={(value) => {
                             setReviews((current) => ({
@@ -292,7 +279,7 @@ export function ApiCatalog(p: Props) {
                           </small>
                         </span>
                       ) : (
-                        <span className="mp-allowed">● İzin verilebilir</span>
+                        <span className="mp-allowed">● Seçilebilir</span>
                       )}
                     </td>
                   </tr>

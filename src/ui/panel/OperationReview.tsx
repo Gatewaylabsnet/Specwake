@@ -11,6 +11,7 @@ type Props = {
   operation: Operation;
   locked: boolean;
   onReview(value: Selection | undefined): void;
+  saved?: Selection;
 };
 export function OperationReview(props: Props) {
   return props.operation.method === "GET" ? (
@@ -19,9 +20,11 @@ export function OperationReview(props: Props) {
     <PostReview {...props} />
   );
 }
-function GetReview({ operation, locked, onReview }: Props) {
-  const [description, setDescription] = useState(operation.description);
-  const [readOnly, setReadOnly] = useState(false);
+function GetReview({ operation, locked, onReview, saved }: Props) {
+  const [description, setDescription] = useState(
+    saved?.description ?? operation.description,
+  );
+  const [readOnly, setReadOnly] = useState(saved?.readOnlyConfirmed === true);
   const update = (text: string, consent: boolean) => {
     setDescription(text);
     setReadOnly(consent);
@@ -62,11 +65,12 @@ function GetReview({ operation, locked, onReview }: Props) {
     </details>
   );
 }
-function PostReview({ operation, locked, onReview }: Props) {
+function PostReview({ operation, locked, onReview, saved }: Props) {
   const [draft, setDraft] = useState({
-    description: operation.description,
+    description: saved?.description ?? operation.description,
     schemaText: JSON.stringify(
-      operation.requestBody?.schema ??
+      saved?.bodyOverride ??
+        operation.requestBody?.schema ??
         operation.requestBody?.proposal ?? {
           type: "object",
           properties: {},
@@ -75,9 +79,9 @@ function PostReview({ operation, locked, onReview }: Props) {
       null,
       2,
     ),
-    readOnly: false,
-    override: false,
-    adapter: false,
+    readOnly: saved?.readOnlyConfirmed === true,
+    override: saved?.bodyOverrideApproved === true,
+    adapter: saved?.responseAdapterApproved === true,
   });
   const canReview = operation.issues.every((issue) =>
     [POST_REVIEW, BODY_REVIEW].includes(issue),
@@ -152,8 +156,8 @@ function PostReview({ operation, locked, onReview }: Props) {
       ))}
       {!canReview && (
         <p className="mp-error">
-          Bu işlem demo izin listesi veya desteklenen sözleşme kapsamında değil;
-          etkinleştirilemez.
+          Bu işlem yürütme politikası veya desteklenen sözleşme kapsamında
+          değil; etkinleştirilemez.
         </p>
       )}
       <label>

@@ -7,7 +7,7 @@ export function createMcpServer(input: unknown, targetInput: unknown, context: E
   let manifest;
   try {manifest = validateManifest(input);} catch {throw new RuntimeFault('SW_MANIFEST_INVALID');}
   const target = validateTarget(targetInput);
-  const server = new McpServer({name:'specwake-generated',version:'0.2.0'});
+  const server = new McpServer({name:'specwake-generated',version:'0.3.0'});
   for (const tool of manifest.tools) {
     const schema = toolSchema(tool);
     // Standard Schema is an SDK-supported extension point: retain the exact JSON input

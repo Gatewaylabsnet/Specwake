@@ -11,10 +11,10 @@ New-Item -ItemType Directory -Path $inputFolder,$qaFolder,$outputFolder | Out-Nu
 foreach ($name in @("Specwake-$version-Portable-x64.exe", "Specwake-$version-Setup-x64.exe", "SHA256SUMS-$version.txt")) {
   $source = Join-Path $root ('release\' + $name)
   if (-not (Test-Path -LiteralPath $source)) { throw 'Build the current setup, portable package and versioned checksums first.' }
-  $destination = if ($name -like 'SHA256SUMS-*') { Join-Path $inputFolder 'SHA256SUMS.txt' } else { Join-Path $inputFolder $name }
+  $destination = Join-Path $inputFolder $name
   Copy-Item -LiteralPath $source -Destination $destination
 }
-foreach ($name in @('verify-desktop.ps1','verify-clean-windows.ps1')) {
+foreach ($name in @('verify-desktop.ps1','verify-upstream-desktop.ps1','verify-clean-windows.ps1')) {
   Copy-Item -LiteralPath (Join-Path $PSScriptRoot $name) -Destination (Join-Path $qaFolder $name)
 }
 $escape = { param($value) [Security.SecurityElement]::Escape($value) }

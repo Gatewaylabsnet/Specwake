@@ -34,7 +34,7 @@ export class LocalJournal implements EventSink {
   private closed = false;
   private constructor(private readonly folder: string) {}
   static async open(folder: string) {
-    await mkdir(folder, { recursive: true });
+    await mkdir(folder, { recursive: true, mode:0o700 });
     const journal = new LocalJournal(folder);
     // One writer per data directory. Do not silently recover a lock after a crash.
     const lock = await open(join(folder, "writer.lock"), "wx");

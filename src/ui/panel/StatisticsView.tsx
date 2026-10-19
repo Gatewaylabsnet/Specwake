@@ -59,7 +59,7 @@ export function StatisticsView({
     >
       <div className="mp-stat-heading">
         <div>
-          <div className="mp-eyebrow">GERÇEK DEMO ÇAĞRILARI</div>
+          <div className="mp-eyebrow">KAYITLI MCP ÇAĞRILARI</div>
           <h2 id="statistics-title">
             {logsOnly ? "Çağrı kayıtları" : "Kullanımın görünür hali"}
           </h2>
@@ -95,7 +95,16 @@ export function StatisticsView({
             <option value="">Tüm yerel istemciler</option>
             {["panel-demo", "local-script", "qa-demo", "local-unverified"].map(
               (c) => (
-                <option key={c}>{c}</option>
+                <option key={c} value={c}>
+                  {(
+                    {
+                      "panel-demo": "Yerel panel",
+                      "qa-demo": "Test istemcisi",
+                      "local-script": "Yerel istemci",
+                      "local-unverified": "Etiketsiz istemci",
+                    } as Record<string, string>
+                  )[c] ?? c}
+                </option>
               ),
             )}
           </select>
@@ -163,7 +172,7 @@ export function StatisticsView({
             {!stats?.calls ? (
               <div className="mp-empty compact">
                 <h3>Henüz kullanım verisi yok</h3>
-                <p>İlk gerçek demo çağrısıyla grafik oluşacak.</p>
+                <p>Kayıtlı çağrı oluştuğunda grafik burada görünür.</p>
               </div>
             ) : (
               <>
@@ -261,9 +270,10 @@ export function StatisticsView({
         · Sayım: yalnız kaydedilmiş tools/call denemeleri (retler dahil). Hata
         oranı = hatalı / tüm kaydedilen çağrılar. Sağlık kontrolleri ve
         initialize/list istekleri sayılmaz. Kayıtlar en çok 7 gün / 5.000 olay;
-        görünüm 5 saniyede yenilenir. Süre SDK/MCP + demo API işlemidir;
-        initialize/list, upload ve disk yazımı hariç. Tüm çağrılar sentetik demo
-        verisine aittir. Geçmiş API grupları kimlikleriyle korunur.
+        görünüm 5 saniyede yenilenir. Süre SDK/MCP + upstream işlemidir;
+        initialize/list, upload ve disk yazımı hariç. Mevcut geçmiş sentetik
+        test çağrılarını içerebilir; gerçek kurum kullanımının kanıtı değildir.
+        Geçmiş API grupları kimlikleriyle korunur.
       </p>
     </section>
   );

@@ -10,6 +10,13 @@ import { json, PanelFault, readJson, safeFailure } from "./http.js";
 import { exportPackage } from "../studio/export.js";
 import { NAME } from "../core/contracts.js";
 import type { DemoListeners } from "./config.js";
+import { Workspace } from "./workspace.js";
+import {
+  connectionName,
+  createHttpConnection,
+  liveConnectionKey,
+  HTTP_CONNECTION_FILENAME,
+} from "../core/http-connection.js";
 
 const selectionSchema = z
   .object({
@@ -21,8 +28,10 @@ const selectionSchema = z
             id: z.string().max(600),
             name: z.string().regex(NAME),
             description: z.string().max(2000),
-            readOnlyConfirmed: z.boolean().optional(), bodyOverride: z.unknown().optional(),
-            bodyOverrideApproved: z.boolean().optional(), responseAdapterApproved: z.boolean().optional(),
+            readOnlyConfirmed: z.boolean().optional(),
+            bodyOverride: z.unknown().optional(),
+            bodyOverrideApproved: z.boolean().optional(),
+            responseAdapterApproved: z.boolean().optional(),
           })
           .strict(),
       )
@@ -62,7 +71,21 @@ export async function createPanel(
     await journal.close();
     throw error;
   }
-  const service = new DemoMcpService(demo.target, journal, listeners, demo.executionContext);
+  let workspace: Workspace;
+  try {
+    workspace = await Workspace.open(
+      catalog,
+      dataDir,
+      demo,
+      journal,
+      listeners,
+    );
+  } catch {
+    await demo.close();
+    await journal.close();
+    throw new Error("Workspace unavailable; data preserved");
+  }
+  const service = workspace.service;
   let calls = 0;
   return {
     async handle(req: IncomingMessage, res: ServerResponse, url: URL) {
@@ -84,8 +107,9 @@ export async function createPanel(
             clientLabels: CLIENT_LABELS,
             demo: true,
             desktopClientExecutable,
+            workspace: workspace.publicState(),
             persistence:
-              "Çağrı metadatası kalıcıdır; API grupları ve hizmet seçimi oturuma özeldir.",
+              "API grupları, doğrulanmış seçim/hedef ve yerel MCP portu kalıcıdır. Hizmet yeniden açılışta durmuş başlar.",
           });
         if (req.method === "GET" && action === "statistics") {
           const query = parse(
@@ -115,26 +139,69 @@ export async function createPanel(
           req,
           action === "import" ? 1100000 : 64 * 1024,
         );
-        if (action === "import" || action === "sample" || action === "read-post-sample") {
+        if (action === "connection-export") {
+          const input = parse(
+            z.object({ name: connectionName }).strict(),
+            data,
+          );
+          const state = service.state();
+          if (!liveConnectionKey(state))
+            throw new PanelFault(
+              409,
+              "CONNECTION_UNAVAILABLE",
+              "Bağlantı JSON’u için güncel MCP hizmetini başlatın.",
+            );
+          const manifest = createHttpConnection(state, input.name);
+          res.writeHead(200, {
+            "Content-Type": "application/json; charset=utf-8",
+            "Content-Disposition": `attachment; filename="${HTTP_CONNECTION_FILENAME}"`,
+            "Cache-Control": "no-store",
+            "X-Content-Type-Options": "nosniff",
+          });
+          res.end(JSON.stringify(manifest, null, 2) + "\n");
+          return;
+        }
+        if (
+          action === "import" ||
+          action === "sample" ||
+          action === "read-post-sample"
+        ) {
           const source =
             action !== "import"
-              ? (parse(z.object({}).strict(), data), action === "sample" ? catalog.sample : catalog.readPostSample)
+              ? (parse(z.object({}).strict(), data),
+                action === "sample" ? catalog.sample : catalog.readPostSample)
               : parse(
                   z.object({ source: z.string().max(1024 * 1024) }).strict(),
                   data,
                 ).source;
-          return json(res, 200, catalog.import(source));
+          return json(
+            res,
+            200,
+            await workspace.serial(() =>
+              workspace.import(
+                source,
+                action === "import" ? "unconfigured" : "synthetic",
+              ),
+            ),
+          );
         }
         if (action === "configure" || action === "export") {
           const input = parse(selectionSchema, data);
-          if(action === "configure" && input.selections.length === 0) return json(res,200,service.clear());
-          const selected = catalog.select(input.groupId, input.selections as import("../core/model.js").Selection[]);
           if (action === "configure")
             return json(
               res,
               200,
-              service.configure(input.groupId, selected.manifest),
+              await workspace.serial(() =>
+                workspace.configure(
+                  input.groupId,
+                  input.selections as import("../core/model.js").Selection[],
+                ),
+              ),
             );
+          const selected = catalog.select(
+            input.groupId,
+            input.selections as import("../core/model.js").Selection[],
+          );
           const zip = await exportPackage(selected.manifest, root);
           res.writeHead(200, {
             "Content-Type": "application/zip",
@@ -144,12 +211,45 @@ export async function createPanel(
           res.end(zip);
           return;
         }
+        if (action === "target") {
+          const input = parse(
+            z
+              .object({
+                groupId: z.uuid(),
+                revision: z.uuid(),
+                target: z.unknown(),
+                approveSelection: z.literal(true),
+              })
+              .strict(),
+            data,
+          );
+          return json(
+            res,
+            200,
+            await workspace.serial(() =>
+              workspace.target(input.groupId, input.revision, input.target),
+            ),
+          );
+        }
+        if (action === "connection-settings") {
+          const input = parse(
+            z.object({ mcpPort: z.number().int().min(1).max(65535) }).strict(),
+            data,
+          );
+          return json(
+            res,
+            200,
+            await workspace.serial(() => workspace.port(input.mcpPort)),
+          );
+        }
         if (action === "start" || action === "stop") {
           parse(z.object({}).strict(), data);
           return json(
             res,
             200,
-            action === "start" ? await service.start() : await service.stop(),
+            await workspace.serial(() =>
+              action === "start" ? service.start() : service.stop(),
+            ),
           );
         }
         if (action === "call") {
@@ -177,7 +277,7 @@ export async function createPanel(
       }
     },
     async close() {
-      await service.stop();
+      await workspace.serial(() => service.stop());
       await demo.close();
       await journal.close();
     },

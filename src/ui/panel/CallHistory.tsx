@@ -36,8 +36,8 @@ export function CallHistory({
           <div>
             <h3>Son çağrılar</h3>
             <p>
-              Gerçekleştirilen sentetik demo çağrıları · en yeni {limit} kayıt ·
-              İstanbul / UTC+3
+              Kaydedilmiş çağrılar (önceki sentetik testler dahil) · en yeni{" "}
+              {limit} kayıt · İstanbul / UTC+3
             </p>
           </div>
           <span className="mp-chip">{retained} / 5.000 saklanan</span>
@@ -77,7 +77,7 @@ export function CallHistory({
                   </td>
                   <td>
                     <code>{e.client}</code>
-                    <small>Doğrulanmamış demo etiketi</small>
+                    <small>Doğrulanmamış istemci etiketi</small>
                   </td>
                   <td>
                     <span
@@ -94,7 +94,7 @@ export function CallHistory({
           </table>
           {!events.length && (
             <div className="mp-empty compact">
-              Bu filtrelerde kayıt yok. Bir demo çağrısı çalıştırın veya
+              Bu filtrelerde kayıt yok. Zaman aralığını genişletin veya
               filtreleri değiştirin.
             </div>
           )}
@@ -151,7 +151,7 @@ export function CallHistory({
                 <dd>
                   <code>{selected.tool}</code>
                 </dd>
-                <dt>API / demo proxy grubu</dt>
+                <dt>API grubu</dt>
                 <dd>
                   {groupName(selected.groupId)}
                   <small>{selected.groupId}</small>

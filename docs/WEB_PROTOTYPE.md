@@ -1,3 +1,5 @@
+> Güncel 0.3.0 akışı, kalıcılık ve doğrulama: [REAL_UPSTREAM.md](REAL_UPSTREAM.md). Eski aşamalara ait aşağıdaki notlar tarihsel bağlamdır.
+
 # Yerel web prototipi
 
 18 Ekim 2026. Mevcut React/TypeScript tasarımı üzerinde yönetici görünümü, ayrı MCP bağlantı ekranı, güvenli çağrı ayrıntısı ve bağımsız SDK istemcisi tamamlandı. Mevcut stdio oluşturucu ve ZIP export korunur. Güncel kanıt: [MANAGEMENT_DEMO_VERIFICATION.md](MANAGEMENT_DEMO_VERIFICATION.md). Önceki turun tarihsel kanıtı [WEB_PROTOTYPE_VERIFICATION.md](WEB_PROTOTYPE_VERIFICATION.md) içinde kalır; kurumsal/uzak yayın bu teslimde yoktur.
@@ -80,3 +82,11 @@ Güncel sonuçlar, ekranlar, değişen dosya haritası ve kalan riskler: [MANAGE
 ## 0.2.0 kontrollü POST eki
 
 Bu belgedeki GET odaklı ilk teslimden sonra eklenen varsayılan-kapalı JSON POST incelemesi, sonuç adaptörü ve yeni gerçek SDK testleri için [READ_POST_DEMO.md](READ_POST_DEMO.md) esas alınır. Kurumsal auth, gerçek veri ve Linux Docker kabulü tamamlanmış sayılmaz.
+
+## Yerel bağlantı JSON dışa aktarımı
+
+Çalışan MCP hizmeti için yalnız bağlantı metadata'sı içeren JSON indirme ve v1 şema/örnek eklendi. Yeni özellik yerel çalışma ağacındadır; v0.2.0 EXE'lerine yayımlanmış değildir. Kullanım ve gerçek testler: [HTTP_CONNECTION_EXPORT.md](HTTP_CONNECTION_EXPORT.md).
+
+## Güncel yerel ana arayüz
+
+Ana demo yönlendirmeleri kaldırıldı; `/` ve `/panel` OpenAPI yükleme çalışma alanıdır. Eski mock sihirbazı `/developer` yolundadır. Yüklenen tanımların gerçek API hedefi bu sürümde bağlanmadığı için HTTP başlatma kapalıdır; sentetik hedef gerçekmiş gibi gösterilmez. Koruma, testler ve yalnız değerlendirme olan sabit port önerisi: [WORKSPACE_SIMPLIFICATION.md](WORKSPACE_SIMPLIFICATION.md). Yeni EXE/yayın yapılmadı.

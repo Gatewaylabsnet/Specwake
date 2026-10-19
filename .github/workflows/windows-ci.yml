@@ -37,19 +37,47 @@ jobs:
         run: npm run test:http
       - name: Reviewed POST HTTP and standalone stdio
         run: npm run test:read-post
-      - name: Package desktop without installer execution or publishing
-        run: npm run desktop:pack:dir
+      - name: Build exact Windows release candidate packages
+        run: npm run desktop:pack
       - name: Packaged desktop smoke test
         run: npm run test:desktop
+      - name: Packaged generic upstream and old JSON reopen acceptance
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-upstream-desktop.ps1 -EvidenceDirectory artifacts/upstream-unpacked
       - name: Verify the desktop-generated ZIP independently
         run: npm run test:export -- artifacts/desktop-verification-server.zip
+      - name: Hash the candidate packages and prepare user guides
+        run: npm run desktop:checksums
+      - name: Disposable Windows runner portable and installer acceptance
+        shell: pwsh
+        run: |
+          $priorQaPath = $env:PATH
+          try {
+            $env:PATH = "$env:SystemRoot\System32"
+            & ./scripts/verify-clean-windows.ps1 -GitHubHostedRunner -InputDirectory "$pwd/release" -OutputDirectory "$pwd/artifacts/clean-ci"
+          } finally { $env:PATH = $priorQaPath }
+      - name: Keep the exact tested release candidates
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: windows-release-candidate
+          path: |
+            release/*-Portable-x64.exe
+            release/*-Setup-x64.exe
+            release/SHA256SUMS-*.txt
+            release/Specwake-*-Kullanim.md
+            release/Specwake-*-Yonetim.md
+            release/Specwake-*-DeepSeek-Prompt.md
+          if-no-files-found: error
+          retention-days: 7
       - name: Keep verification evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: windows-node24-evidence
           path: |
-            artifacts/*verification.json
+            artifacts/**/*verification.json
+            artifacts/**/first.json
+            artifacts/**/reopen.json
+            artifacts/**/connection.json
             artifacts/desktop-verification.png
           if-no-files-found: warn
           retention-days: 7

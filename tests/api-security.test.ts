@@ -14,7 +14,7 @@ const [key,cert,ca] = await Promise.all(['agent1-key.pem','agent1-cert.pem','ca1
 const tool: Tool = {operationId:'GET /anonymous',method:'GET',path:'/anonymous',name:'fixture',description:'Isolated test',parameters:[],auth:{kind:'none'}};
 const apiTarget = (port=443,hostname='agent1') => ({mode:'api',baseUrl:`https://${hostname}:${port}/v1`,allowedAddresses:[TEST_IP],allowInsecureHttp:false});
 function expectCode(result: ExecutionResult, code: ErrorCode) {
-  assert.equal(result.isError,true);assert.equal(result.structuredContent?.error.code,code);assert.match(result.content[0].text,new RegExp(code));assert.ok(result.structuredContent?.error.hint);
+  assert.equal(result.isError,true);assert.equal(result.structuredContent?.error?.code,code);assert.match(result.content[0].text,new RegExp(code));assert.ok(result.structuredContent?.error?.hint);
   assert.doesNotMatch(JSON.stringify(result),/fixture-only-bearer-not-a-real-secret|fixture-only-api-key-not-a-real-secret|sensitive-query|raw-failure-body/);
 }
 

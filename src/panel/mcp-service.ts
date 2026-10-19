@@ -1,3 +1,4 @@
+import type { ExecutionContext } from "../runtime/token-provider.js";
 import {
   createServer,
   type IncomingMessage,
@@ -39,6 +40,7 @@ export class DemoMcpService {
     private readonly target: Target,
     private readonly sink: EventSink,
     private readonly listeners: DemoListeners = localListeners,
+    private readonly executionContext: ExecutionContext = {},
   ) {}
   state() {
     return {
@@ -61,6 +63,11 @@ export class DemoMcpService {
       );
     this.deployment = { groupId, manifest, revision: randomUUID() };
     this.lastError = undefined;
+    return this.state();
+  }
+  clear() {
+    if (!["stopped", "error"].includes(this.phase)) throw new PanelFault(409,"SERVICE_ACTIVE","Onayı kaldırmadan önce hizmeti durdurun.");
+    this.deployment=undefined; this.runId=undefined; this.lastError=undefined;
     return this.state();
   }
   async start() {
@@ -153,7 +160,7 @@ export class DemoMcpService {
         "Önce MCP hizmetini başlatın.",
       );
     const client = new Client(
-      { name: "specwake-local-demo", version: "0.1.0" },
+      { name: "specwake-local-demo", version: "0.2.0" },
       { supportedProtocolVersions: [MCP_PROTOCOL] },
     );
     const transport = new StreamableHTTPClientTransport(
@@ -256,6 +263,7 @@ export class DemoMcpService {
         deployment,
         runId,
         sink: this.sink,
+        executionContext: this.executionContext,
       });
     } finally {
       --this.inflight;

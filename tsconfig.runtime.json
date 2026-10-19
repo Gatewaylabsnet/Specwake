@@ -1,5 +1,5 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": { "noEmit": false, "outDir": "dist/runtime", "rootDir": "src", "declaration": true },
-  "include": ["src/runtime", "src/core/model.ts", "src/core/contracts.ts"]
+  "include": ["src/runtime", "src/core/model.ts", "src/core/contracts.ts", "src/core/body-schema.ts"]
 }

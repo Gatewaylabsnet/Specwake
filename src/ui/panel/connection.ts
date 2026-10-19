@@ -1,5 +1,5 @@
 import type { Tool } from "../../core/model.js";
-import { defaults } from "./api.js";
+import { defaults, toolDefaults } from "./api.js";
 export function connectionExample(
   endpoint: string,
   tool: Tool | undefined,
@@ -18,7 +18,7 @@ export function connectionExample(
     url.password
   )
     throw new Error("Invalid local demo endpoint");
-  const args = JSON.parse(defaults(tool?.parameters ?? []));
+  const args = JSON.parse(tool ? toolDefaults(tool) : '{}');
   const quote = (value: string) => `'${value.replaceAll("'", "''")}'`;
   const prefix = desktopExecutable
     ? `& ${quote(desktopExecutable)} --mcp-client --endpoint ${quote(url.href)}`

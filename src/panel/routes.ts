@@ -21,10 +21,12 @@ const selectionSchema = z
             id: z.string().max(600),
             name: z.string().regex(NAME),
             description: z.string().max(2000),
+            readOnlyConfirmed: z.boolean().optional(), bodyOverride: z.unknown().optional(),
+            bodyOverrideApproved: z.boolean().optional(), responseAdapterApproved: z.boolean().optional(),
           })
           .strict(),
       )
-      .min(1)
+      .min(0)
       .max(64),
   })
   .strict();
@@ -60,7 +62,7 @@ export async function createPanel(
     await journal.close();
     throw error;
   }
-  const service = new DemoMcpService(demo.target, journal, listeners);
+  const service = new DemoMcpService(demo.target, journal, listeners, demo.executionContext);
   let calls = 0;
   return {
     async handle(req: IncomingMessage, res: ServerResponse, url: URL) {
@@ -113,10 +115,10 @@ export async function createPanel(
           req,
           action === "import" ? 1100000 : 64 * 1024,
         );
-        if (action === "import" || action === "sample") {
+        if (action === "import" || action === "sample" || action === "read-post-sample") {
           const source =
-            action === "sample"
-              ? (parse(z.object({}).strict(), data), catalog.sample)
+            action !== "import"
+              ? (parse(z.object({}).strict(), data), action === "sample" ? catalog.sample : catalog.readPostSample)
               : parse(
                   z.object({ source: z.string().max(1024 * 1024) }).strict(),
                   data,
@@ -125,7 +127,8 @@ export async function createPanel(
         }
         if (action === "configure" || action === "export") {
           const input = parse(selectionSchema, data);
-          const selected = catalog.select(input.groupId, input.selections);
+          if(action === "configure" && input.selections.length === 0) return json(res,200,service.clear());
+          const selected = catalog.select(input.groupId, input.selections as import("../core/model.js").Selection[]);
           if (action === "configure")
             return json(
               res,

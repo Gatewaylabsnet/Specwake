@@ -1,4 +1,10 @@
 export const diagnostics = {
+  SW_OPERATION_FORBIDDEN: ['The operation is not permitted by the runtime read-only POST policy.', 'Review both the selected manifest and the operator-owned exact operation allowlist.'],
+  SW_REQUEST_TOO_LARGE: ['The JSON body exceeds 16 KiB.', 'Reduce the selected query body.'],
+  SW_CANCELLED: ['The invocation was cancelled.', 'Retry only after checking the current service state.'],
+  SW_APPLICATION_ERROR: ['The API reported an application error inside its response.', 'The raw error content is intentionally omitted.'],
+  SW_RESPONSE_ENVELOPE: ['The response does not match the approved envelope adapter.', 'Do not treat HTTP 200 or a row count as verified success.'],
+  SW_RESULT_MISSING: ['The configured result field is missing.', 'The response is not a complete query result.'],
   SW_PARAMETER_INVALID: ['The tool arguments are invalid.', 'Check required fields, scalar types, enums and path boundary characters; then retry.'],
   SW_TARGET_INVALID: ['The target configuration is invalid.', 'Set a fixed HTTP(S) base URL without credentials, query or fragment and an exact IPv4 allowlist.'],
   SW_TARGET_FORBIDDEN: ['The target is blocked by the network policy.', 'Use an explicitly permitted API address. Metadata, loopback and special addresses remain blocked in API mode.'],
@@ -27,7 +33,7 @@ export type ErrorCode = keyof typeof diagnostics;
 export type ExecutionResult = {
   isError?: boolean;
   content: {type:'text';text:string}[];
-  structuredContent?: {error:{code:ErrorCode;message:string;hint:string}};
+  structuredContent?: { error?: {code:ErrorCode;message:string;hint:string}; [key: string]: unknown };
 };
 export class RuntimeFault extends Error {
   constructor(readonly code: ErrorCode) { super(diagnostics[code][0]); this.name = 'RuntimeFault'; }

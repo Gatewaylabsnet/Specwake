@@ -87,3 +87,8 @@ export function defaults(
 }
 
 export type CallReply = Awaited<ReturnType<DemoMcpService["call"]>>;
+export function toolDefaults(tool:import('../../core/model.js').Tool) {
+  const value=JSON.parse(defaults(tool.parameters));
+  if(tool.method==='POST')value.body={};
+  return JSON.stringify(value,null,2);
+}

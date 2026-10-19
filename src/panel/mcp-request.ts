@@ -1,3 +1,4 @@
+import type { ExecutionContext } from "../runtime/token-provider.js";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { randomUUID } from "node:crypto";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/server";
@@ -17,8 +18,12 @@ export async function serveMcpRequest(
     deployment: Deployment;
     runId: string;
     sink: EventSink;
+    executionContext?: ExecutionContext;
   },
 ) {
+  const cancelled = new AbortController();
+  const abort = () => { if (!res.writableEnded) cancelled.abort(); };
+  req.once("aborted", abort); res.once("close", abort);
   let server: ReturnType<typeof createMcpServer> | undefined;
   try {
     const body = await readJson(req);
@@ -39,7 +44,7 @@ export async function serveMcpRequest(
     const selectedTool = context.deployment.manifest.tools.find(
       (t) => t.name === rpc.params?.name,
     );
-    server = createMcpServer(context.deployment.manifest, context.target);
+    server = createMcpServer(context.deployment.manifest, context.target, {...context.executionContext, signal:cancelled.signal});
     const transport = new WebStandardStreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
       enableJsonResponse: true,
@@ -101,6 +106,7 @@ export async function serveMcpRequest(
   } catch (error) {
     safeFailure(res, error);
   } finally {
+    req.off("aborted", abort); res.off("close", abort);
     await server?.close();
   }
 }

@@ -30,3 +30,16 @@ Startup diagnostics are one JSON record on **stderr**, followed by exit code 1. 
 | SW_STARTUP_FAILED | Check local resources, permissions and existing instances; rebuild/reinstall if needed. |
 
 Successful response data is intentionally returned to the MCP client. Exact configured credential echoes are masked, but this is not comprehensive anonymization. A client may forward returned data to its AI provider. Error diagnosis does not weaken target policy or grant access to a new target.
+
+## Reviewed POST diagnostics
+
+| Code | Meaning |
+| --- | --- |
+| SW_OPERATION_FORBIDDEN | Missing manifest approval, exact runtime operation allowlist or adapter. |
+| SW_REQUEST_TOO_LARGE | JSON body exceeds 16 KiB. |
+| SW_CANCELLED | Invocation or token acquisition cancelled. |
+| SW_APPLICATION_ERROR | Application errors inside the envelope; raw contents omitted. |
+| SW_RESPONSE_ENVELOPE | Status/errors envelope does not match approved configuration. |
+| SW_RESULT_MISSING | Configured data/result property absent. |
+
+`SW_TIMEOUT` covers the shared token acquisition + DNS + HTTP deadline. SDK argument rejections may carry `SW_PARAMETER_INVALID` in a tool error without the adapted source envelope. Always handle both JSON-RPC errors and `isError` tool results.

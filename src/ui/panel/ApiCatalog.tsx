@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import type { ApiGroup } from "../../panel/catalog.js";
 import type { Selection } from "../../core/model.js";
+import { OperationReview } from "./OperationReview.js";
 
 interface Props {
   groups: ApiGroup[];
@@ -8,13 +9,18 @@ interface Props {
   selections: Selection[];
   locked: boolean;
   busy: boolean;
+  hasDeployment: boolean;
   onGroup(id: string): void;
   onSelections(value: Selection[]): void;
   onImport(source?: string): void;
+  onReadPostSample(): void;
   onSave(): void;
   onExport(): void;
 }
 export function ApiCatalog(p: Props) {
+  const [reviews, setReviews] = useState<Record<string, Selection | undefined>>(
+    {},
+  );
   const file = useRef<HTMLInputElement>(null);
   const [filter, setFilter] = useState("");
   const [onlyAllowed, setOnlyAllowed] = useState(false);
@@ -31,7 +37,14 @@ export function ApiCatalog(p: Props) {
     const op = p.group!.operations.find((op) => op.id === id)!;
     p.onSelections(
       checked
-        ? [...p.selections, { id, name: op.name, description: op.description }]
+        ? [
+            ...p.selections,
+            reviews[`${p.group!.id}:${op.id}`] ?? {
+              id,
+              name: op.name,
+              description: op.description,
+            },
+          ]
         : p.selections.filter((s) => s.id !== id),
     );
   };
@@ -42,7 +55,7 @@ export function ApiCatalog(p: Props) {
           <div className="mp-eyebrow">01 / API KATALOĞU</div>
           <h2 id="catalog-title">Tanımdan araca</h2>
           <p>
-            Bir dosya yükleyin, yalnız izin verdiğiniz GET işlemlerini seçin.
+            GET veya açıkça onayladığınız salt-okuma POST işlemlerini seçin.
           </p>
         </div>
         <div className="mp-button-row">
@@ -82,6 +95,15 @@ export function ApiCatalog(p: Props) {
             ＋ Demo API ekle
           </button>
         </div>
+      </div>
+      <div className="mp-button-row" style={{ padding: "0 24px 16px" }}>
+        <button
+          className="mp-button"
+          disabled={p.busy || p.locked || p.groups.length >= 8}
+          onClick={p.onReadPostSample}
+        >
+          JSON POST demosu ekle
+        </button>
       </div>
       {fileError && (
         <div role="alert" className="mp-error">
@@ -171,11 +193,14 @@ export function ApiCatalog(p: Props) {
                                 ...p.selections.filter(
                                   (s) => !visible.some((op) => op.id === s.id),
                                 ),
-                                ...visible.map((op) => ({
-                                  id: op.id,
-                                  name: op.name,
-                                  description: op.description,
-                                })),
+                                ...visible.map(
+                                  (op) =>
+                                    reviews[`${p.group!.id}:${op.id}`] ?? {
+                                      id: op.id,
+                                      name: op.name,
+                                      description: op.description,
+                                    },
+                                ),
                               ].slice(0, 64)
                             : p.selections.filter(
                                 (s) => !visible.some((op) => op.id === s.id),
@@ -205,7 +230,10 @@ export function ApiCatalog(p: Props) {
                         aria-label={`${op.method} ${op.path} seç`}
                         disabled={
                           p.locked ||
-                          !!op.issues.length ||
+                          (op.method === "POST"
+                            ? !reviews[`${p.group!.id}:${op.id}`] &&
+                              !p.selections.some((s) => s.id === op.id)
+                            : !!op.issues.length) ||
                           (p.selections.length >= 64 &&
                             !p.selections.some((s) => s.id === op.id))
                         }
@@ -223,6 +251,27 @@ export function ApiCatalog(p: Props) {
                         <code>{op.path}</code>
                       </div>
                       <small>{op.description}</small>
+                      {["GET", "POST"].includes(op.method) && (
+                        <OperationReview
+                          key={`${p.group!.id}:${op.id}`}
+                          operation={op}
+                          locked={p.locked}
+                          onReview={(value) => {
+                            setReviews((current) => ({
+                              ...current,
+                              [`${p.group!.id}:${op.id}`]: value,
+                            }));
+                            if (p.selections.some((s) => s.id === op.id))
+                              p.onSelections(
+                                value
+                                  ? p.selections.map((s) =>
+                                      s.id === op.id ? value : s,
+                                    )
+                                  : p.selections.filter((s) => s.id !== op.id),
+                              );
+                          }}
+                        />
+                      )}
                     </td>
                     <td>
                       <code className="mp-tool-name">{op.name}</code>
@@ -231,9 +280,16 @@ export function ApiCatalog(p: Props) {
                       {op.issues.length ? (
                         <span
                           className="mp-unsupported"
-                          title={op.method !== "GET" ? "Bu demoda yalnız GET işlemleri yayımlanabilir." : op.issues.join(" ")}
+                          title={op.issues.join(" ")}
                         >
-                          Kapalı ⓘ<small>{op.method !== "GET" ? "Bu demoda yalnız GET işlemleri yayımlanabilir." : op.issues[0]}</small>
+                          {reviews[`${p.group!.id}:${op.id}`]
+                            ? "Yönetici onayı hazır"
+                            : "Kapalı / inceleme gerekli"}
+                          <small>
+                            {op.method === "POST"
+                              ? "Salt-okuma onayı + JSON sözleşmesi + runtime izin listesi gerekir."
+                              : op.issues[0]}
+                          </small>
                         </span>
                       ) : (
                         <span className="mp-allowed">● İzin verilebilir</span>
@@ -264,7 +320,11 @@ export function ApiCatalog(p: Props) {
               </button>
               <button
                 className="mp-button mp-button-dark"
-                disabled={p.busy || p.locked || !p.selections.length}
+                disabled={
+                  p.busy ||
+                  p.locked ||
+                  (!p.selections.length && !p.hasDeployment)
+                }
                 onClick={p.onSave}
               >
                 Seçimi kaydet →

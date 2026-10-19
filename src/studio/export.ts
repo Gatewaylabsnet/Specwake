@@ -8,7 +8,7 @@ export async function exportPackage(input: unknown, root = ROOT): Promise<Uint8A
   const manifest = validateManifest(input);
   const files: Record<string,Uint8Array> = {};
   // Fixed allowlist: neither uploaded filenames nor operation names become filesystem paths.
-  const sources = ['runtime/cli.ts','runtime/server.ts','runtime/http.ts','runtime/errors.ts','core/model.ts','core/contracts.ts'];
+  const sources = ['runtime/cli.ts','runtime/server.ts','runtime/http.ts','runtime/errors.ts','runtime/deadline.ts','runtime/token-provider.ts','runtime/result-adapter.ts','core/body-schema.ts','core/model.ts','core/contracts.ts'];
   for (const file of sources) files[`src/${file}`] = new Uint8Array(await readFile(resolve(root,'src',file)));
   for (const [source,dest] of [['templates/runtime-package.json','package.json'],['templates/runtime-package-lock.json','package-lock.json'],['templates/RUNTIME_README.md','README.md'],['templates/RUNTIME_ERRORS.md','ERROR_CODES.md'],['LICENSE','LICENSE']]) files[dest] = new Uint8Array(await readFile(resolve(root,source)));
   files['tools.json'] = strToU8(JSON.stringify(manifest,null,2));

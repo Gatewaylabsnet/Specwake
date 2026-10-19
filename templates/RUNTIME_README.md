@@ -23,6 +23,28 @@ For Bearer operations, set `SPECWAKE_BEARER_TOKEN`. For X-* header API-key opera
 
 Timeout: 5 seconds; successful response limit: 256 KiB. Redirects and non-2xx responses fail without returning the raw error body or headers. Configured credential values are masked if echoed in a successful body. Returned successful API data is otherwise intentionally sent to your MCP client and may be forwarded to its AI provider. Local-first describes this authoring workflow, not a guarantee that a connected client keeps every response on your device. Treat API responses and tool descriptions as untrusted data. Only connect clients and APIs you trust.
 
-The runtime validates the selected manifest at startup and validates arguments again before execution. Failures carry stable `SW_*` codes with fixed messages and recovery hints; see [ERROR_CODES.md](ERROR_CODES.md). Startup errors go only to stderr. Parameter keys are prefixed `path_` / `query_`. Only GET with scalar parameters and the documented serialization subset is supported. The runtime has no general-purpose HTTP tool. A local operator can edit this package; the manifest is not a protection against someone who can rewrite the runtime itself.
+The runtime validates the selected manifest at startup and validates arguments again before execution. Failures carry stable `SW_*` codes with fixed messages and recovery hints; see [ERROR_CODES.md](ERROR_CODES.md). Startup errors go only to stderr. Parameter keys are prefixed `path_` / `query_`. GET scalar parameters and explicitly approved POST JSON object bodies are supported. POST adds a required top-level `body` object; path/query fields retain their prefixes. The runtime has no general-purpose HTTP tool. A local operator can edit this package; the manifest is not a protection against someone who can rewrite the runtime itself.
 
-Generated with Specwake 0.1.0, under Apache-2.0. Dependency licenses are retained in installed packages. This package contains independently implemented Specwake runtime code; no Specfold code or assets.
+Generated with Specwake 0.2.0, under Apache-2.0. Dependency licenses are retained in installed packages. This package contains independently implemented Specwake runtime code; no Specfold code or assets.
+
+## Explicit read-only POST policy
+
+POST is closed unless its manifest has `readOnlyConfirmed:true`, `responseAdapterApproved:true` and a valid bounded object `bodySchema`, and the operator-owned target independently contains the exact operation in `allowedReadPosts`. Approval does not prove an API has no side effects or grant access rights. Never enable a mutation on the strength of its HTTP method or name.
+
+Additional target fields (merge with the separately reviewed fixed target; no credential values):
+
+```json
+{
+  "allowedReadPosts": ["POST /realPersonSearch"],
+  "responseAdapter": {
+    "statusField": "statusCode", "successValues": [200],
+    "errorsField": "errors", "dataField": "data",
+    "rowCountField": "numRows", "partialField": "partial",
+    "maskFields": ["IdNo", "IdTaxNo", "IBAN", "address", "fullName", "token", "password", "Authorization"]
+  }
+}
+```
+
+Optional `resultField` selects an own property inside `dataField`; no expressions or arbitrary JSONPath. Missing errors/status/data, nonempty application errors and missing nested result fail closed. Empty/partial/success differ; every adapted result has `complete:false`, source operation/UTC query time and `untrustedData:true`. Row counts and HTTP 200 never prove completeness. Redaction uses configured field names and sensitive input echoes, not general-purpose PII detection; the operator must review actual fields before any pilot.
+
+Bodies are JSON objects serialized once, at most 16 KiB, strict keys, explicit required fields, bounded arrays/depth/strings. Example-derived proposals do not infer required fields or retain example values. Identity identifiers stay strings. The single 5-second invocation deadline includes token acquisition, DNS and HTTP; cancellation propagates. The default token provider reads the process environment only. The panel's injected provider is a public synthetic fixture, not a real login/refresh or institutional authentication integration. Upstream credentials and MCP client authentication are separate concerns.

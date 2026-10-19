@@ -90,3 +90,7 @@ Mevcut dosyalara sınırlı ekler: `src/studio/server.ts` panel API/static route
 - `artifacts/panel-stopped.png`: kapalı listener, boş adres ve devre dışı çağrı düğmesi. QA bitiminde geçici panel sunucusu da normal kapanışla durduruldu; 4319/MCP test portları kapalı ve writer.lock kaldırılmıştır. Dört sentetik demo kaydı inceleme/yeniden başlatma için korunmuştur.
 
 Görev bazlı token/kullanım verisi bu araçlardan alınamadı: **bilinmiyor**. Hesap kotası bu görevin kesin tüketimi olarak kullanılmadı. Kullanıcının istediği model/efor ayarının gerçek çalışma zamanı kimliği bu araçlarla doğrulanamadı; ayar uygulanmış gibi raporlanmıyor. Süre veya kesin maliyet taahhüdü verilmedi.
+
+## 0.2.0 kontrollü POST eki
+
+Bu belgedeki GET odaklı ilk teslimden sonra eklenen varsayılan-kapalı JSON POST incelemesi, sonuç adaptörü ve yeni gerçek SDK testleri için [READ_POST_DEMO.md](READ_POST_DEMO.md) esas alınır. Kurumsal auth, gerçek veri ve Linux Docker kabulü tamamlanmış sayılmaz.

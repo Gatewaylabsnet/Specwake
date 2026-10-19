@@ -27,8 +27,8 @@ try {
     if ($process.ExitCode -ne 0) { throw 'Desktop process exited unsuccessfully.' }
     if (-not (Test-Path -LiteralPath $runReport)) { throw 'Desktop application did not create its verification report.' }
     $report = Get-Content -LiteralPath $runReport -Raw | ConvertFrom-Json
-    if (-not $report.passed -or -not $report.managementPanel -or -not $report.bundledIndependentClient) { throw 'Packaged management/client verification failed.' }
-    foreach ($address in @($report.origin, $report.endpoint)) {
+    if (-not $report.passed -or -not $report.managementPanel -or -not $report.bundledIndependentClient -or -not $report.readPostBundledClient -or $report.readPostCalls -ne 2) { throw 'Packaged management/client/POST verification failed.' }
+    foreach ($address in @($report.origin, $report.endpoint, $report.readPostEndpoint)) {
       $listening = Get-NetTCPConnection -State Listen -LocalPort ([Uri]$address).Port -ErrorAction SilentlyContinue
       if ($listening) { throw 'Desktop self-test left a listening service behind.' }
     }

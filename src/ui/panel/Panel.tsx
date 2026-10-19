@@ -2,7 +2,13 @@ import React, { useEffect, useState } from "react";
 import { ApiCatalog } from "./ApiCatalog.js";
 import { ServiceConsole } from "./ServiceConsole.js";
 import { StatisticsView } from "./StatisticsView.js";
-import { panelApi, panelJson, defaults, type PanelState } from "./api.js";
+import {
+  panelApi,
+  panelJson,
+  defaults,
+  toolDefaults,
+  type PanelState,
+} from "./api.js";
 import { usePanelController } from "./usePanelController.js";
 import { OverviewService } from "./OverviewService.js";
 import "./panel.css";
@@ -210,7 +216,7 @@ export default function Panel() {
               <div className="mp-progress">
                 {[
                   ["API’yi içe aktar", !!state?.groups.length],
-                  ["GET araçlarını seç", !!service?.deployment],
+                  ["GET / onaylı POST seç", !!service?.deployment],
                   ["Seçimi kaydet", !!service?.deployment],
                   ["MCP hizmetini başlat", !!online],
                   ["MCP istemcisini bağla", false],
@@ -241,6 +247,7 @@ export default function Panel() {
           {page === "catalog" && (
             <ApiCatalog
               groups={state?.groups ?? []}
+              hasDeployment={!!service?.deployment}
               group={group}
               selections={selections}
               locked={locked}
@@ -255,6 +262,19 @@ export default function Panel() {
                 setSelections(value);
                 setNotice("");
               }}
+              onReadPostSample={() =>
+                void action("Sentetik POST tanımı yükleniyor", async () => {
+                  const imported = await panelJson<{ id: string }>(
+                    "read-post-sample",
+                    {},
+                  );
+                  setGroupId(imported.id);
+                  setSelections([]);
+                  setNotice(
+                    "Tamamen sentetik POST tanımı yüklendi. Şema ve salt-okuma onayı vermeden hiçbir POST etkinleşmez.",
+                  );
+                })
+              }
               onImport={(source) =>
                 void action("OpenAPI doğrulanıyor", async () => {
                   const imported = await panelJson<{ id: string }>(
@@ -274,13 +294,15 @@ export default function Panel() {
                     "configure",
                     { groupId, selections },
                   );
-                  const first = next.deployment!.manifest.tools[0];
-                  setTool(first.name);
-                  setArgs(defaults(first.parameters));
+                  const first = next.deployment?.manifest.tools[0];
+                  setTool(first?.name ?? "");
+                  setArgs(first ? toolDefaults(first) : "{}");
                   setPage("service");
                   window.scrollTo(0, 0);
                   setNotice(
-                    "Araç seçimi kaydedildi. MCP hizmetini başlatabilirsiniz.",
+                    first
+                      ? "Araç seçimi kaydedildi. MCP hizmetini başlatabilirsiniz."
+                      : "Seçim ve POST onayları sunucudan kaldırıldı. Yeniden başlatmak için açık seçim gerekir.",
                   );
                 })
               }

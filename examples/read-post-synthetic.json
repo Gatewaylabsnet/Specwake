@@ -1,0 +1,1429 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Synthetic read-POST schema review — no institutional data",
+    "version": "1"
+  },
+  "servers": [
+    {
+      "url": "https://example.invalid/never-called"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "synthetic_health",
+        "responses": {
+          "200": {
+            "description": "Synthetic health"
+          }
+        }
+      }
+    },
+    "/health2": {
+      "get": {
+        "operationId": "synthetic_health2",
+        "responses": {
+          "200": {
+            "description": "Synthetic health"
+          }
+        }
+      }
+    },
+    "/realPersonSearch": {
+      "post": {
+        "operationId": "realPersonSearch",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "IdNo": "DEMO-ID-0001"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/GetFieldProductPerson": {
+      "post": {
+        "operationId": "GetFieldProductPerson",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "ProductionYear": "DEMO-2099",
+                "IdTaxNo": "DEMO-TAX-0001"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/PetitionProductionYear": {
+      "post": {
+        "operationId": "PetitionProductionYear",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "IdTaxNo": "DEMO-TAX-0001"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/acmFieldProductLockTarsimSet": {
+      "post": {
+        "operationId": "acmFieldProductLockTarsimSet",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/findStockholder": {
+      "post": {
+        "operationId": "findStockholder",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/FarmerSupportOut": {
+      "post": {
+        "operationId": "FarmerSupportOut",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/FarmerSupportOutList": {
+      "post": {
+        "operationId": "FarmerSupportOutList",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery01": {
+      "post": {
+        "operationId": "syntheticQuery01",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery02": {
+      "post": {
+        "operationId": "syntheticQuery02",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery03": {
+      "post": {
+        "operationId": "syntheticQuery03",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery04": {
+      "post": {
+        "operationId": "syntheticQuery04",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery05": {
+      "post": {
+        "operationId": "syntheticQuery05",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery06": {
+      "post": {
+        "operationId": "syntheticQuery06",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery07": {
+      "post": {
+        "operationId": "syntheticQuery07",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery08": {
+      "post": {
+        "operationId": "syntheticQuery08",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery09": {
+      "post": {
+        "operationId": "syntheticQuery09",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery10": {
+      "post": {
+        "operationId": "syntheticQuery10",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery11": {
+      "post": {
+        "operationId": "syntheticQuery11",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery12": {
+      "post": {
+        "operationId": "syntheticQuery12",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery13": {
+      "post": {
+        "operationId": "syntheticQuery13",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery14": {
+      "post": {
+        "operationId": "syntheticQuery14",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery15": {
+      "post": {
+        "operationId": "syntheticQuery15",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery16": {
+      "post": {
+        "operationId": "syntheticQuery16",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery17": {
+      "post": {
+        "operationId": "syntheticQuery17",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery18": {
+      "post": {
+        "operationId": "syntheticQuery18",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery19": {
+      "post": {
+        "operationId": "syntheticQuery19",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery20": {
+      "post": {
+        "operationId": "syntheticQuery20",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery21": {
+      "post": {
+        "operationId": "syntheticQuery21",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery22": {
+      "post": {
+        "operationId": "syntheticQuery22",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery23": {
+      "post": {
+        "operationId": "syntheticQuery23",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery24": {
+      "post": {
+        "operationId": "syntheticQuery24",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": {
+                "SyntheticValue": "DEMO-ONLY"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery25": {
+      "post": {
+        "operationId": "syntheticQuery25",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery26": {
+      "post": {
+        "operationId": "syntheticQuery26",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery27": {
+      "post": {
+        "operationId": "syntheticQuery27",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery28": {
+      "post": {
+        "operationId": "syntheticQuery28",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/syntheticQuery29": {
+      "post": {
+        "operationId": "syntheticQuery29",
+        "summary": "TAMAMEN SENTETİK — bağımsız test verisi",
+        "responses": {
+          "200": {
+            "description": "Synthetic envelope with intentionally inconsistent schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "errors": [],
+                  "data": [
+                    {
+                      "category": "SYNTHETIC"
+                    }
+                  ],
+                  "numRows": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

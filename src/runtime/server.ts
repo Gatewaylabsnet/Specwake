@@ -1,12 +1,13 @@
 import { McpServer, type StandardSchemaWithJSON } from '@modelcontextprotocol/server';
 import { validateManifest, toolSchema } from '../core/contracts.js';
 import { executeTool, validateTarget } from './http.js';
+import type { ExecutionContext } from './token-provider.js';
 import { RuntimeFault, diagnostics } from './errors.js';
-export function createMcpServer(input: unknown, targetInput: unknown) {
+export function createMcpServer(input: unknown, targetInput: unknown, context: ExecutionContext = {}) {
   let manifest;
   try {manifest = validateManifest(input);} catch {throw new RuntimeFault('SW_MANIFEST_INVALID');}
   const target = validateTarget(targetInput);
-  const server = new McpServer({name:'specwake-generated',version:'0.1.0'});
+  const server = new McpServer({name:'specwake-generated',version:'0.2.0'});
   for (const tool of manifest.tools) {
     const schema = toolSchema(tool);
     // Standard Schema is an SDK-supported extension point: retain the exact JSON input
@@ -17,8 +18,8 @@ export function createMcpServer(input: unknown, targetInput: unknown) {
     }}};
     server.registerTool<StandardSchemaWithJSON, StandardSchemaWithJSON>(tool.name, {
     description:tool.description, inputSchema:safeSchema,
-    annotations:{readOnlyHint:false, destructiveHint:true, openWorldHint:true}
-    }, async args => executeTool(tool, args, target));
+    annotations:{readOnlyHint:tool.readOnlyConfirmed === true, destructiveHint:tool.readOnlyConfirmed !== true, openWorldHint:true}
+    }, async (args, extra) => executeTool(tool, args, target, process.env, {...context, signal: context.signal ? AbortSignal.any([context.signal, extra.mcpReq.signal]) : extra.mcpReq.signal}));
   }
   return server;
 }

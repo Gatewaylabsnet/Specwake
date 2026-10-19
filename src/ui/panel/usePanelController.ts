@@ -7,6 +7,7 @@ import {
 import {
   panelJson,
   defaults,
+  toolDefaults,
   type PanelState,
   type Stats,
   type CallReply,
@@ -44,13 +45,9 @@ export function usePanelController() {
   const draftSaved =
     !!service?.deployment &&
     service.deployment.groupId === groupId &&
-    JSON.stringify(
-      service.deployment.manifest.tools.map((t) => ({
-        id: t.operationId,
-        name: t.name,
-        description: t.description,
-      })),
-    ) === JSON.stringify(selections);
+    service.deployment.manifest.tools.length === selections.length &&
+    service.deployment.manifest.tools.every(t => selections.some(s => s.id === t.operationId && s.name === t.name && s.description === t.description &&
+      (t.method === 'GET' ? !!s.readOnlyConfirmed === !!t.readOnlyConfirmed : s.readOnlyConfirmed === true && s.responseAdapterApproved === true && s.bodyOverrideApproved === true && JSON.stringify(s.bodyOverride) === JSON.stringify(t.bodySchema))));
   const key = callViewKey(
     service?.runId,
     service?.deployment?.revision,
@@ -131,12 +128,8 @@ export function usePanelController() {
   const chooseTool = (name: string) => {
     invalidate();
     setTool(name);
-    setArgs(
-      defaults(
-        service?.deployment?.manifest.tools.find((t) => t.name === name)
-          ?.parameters ?? [],
-      ),
-    );
+    const selected=service?.deployment?.manifest.tools.find(t=>t.name===name);
+    setArgs(selected?toolDefaults(selected):'{}');
   };
   async function runCall() {
     if (!service?.deployment || !service.runId) return;

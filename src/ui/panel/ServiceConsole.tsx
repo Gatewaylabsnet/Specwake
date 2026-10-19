@@ -1,4 +1,6 @@
 import React from "react";
+import { BodyForm } from "./BodyForm.js";
+import { ReadResult } from "./ReadResult.js";
 import { ConnectionGuide } from "./ConnectionGuide.js";
 import type { PanelState } from "./api.js";
 import type { CallReply } from "./api.js";
@@ -86,14 +88,21 @@ export function ServiceConsole(p: {
       </div>
       {!running && !p.canStart && !p.unavailable && (
         <div className="mp-catalog-next">
-          <p>Başlatmak için API kataloğunda GET seçimini gözden geçirip kaydedin. Sayfa yenilendiğinde seçim yeniden onaylanır.</p>
+          <p>
+            Başlatmak için API kataloğunda GET veya onaylı POST seçimini kaydedin.
+            Sayfa yenilendiğinde seçim yeniden onaylanır.
+          </p>
           <button className="mp-button" onClick={p.onReview}>
-            GET seçimini gözden geçir →
+            Araç seçimini gözden geçir →
           </button>
         </div>
       )}
       {!p.unavailable && (
-        <ConnectionGuide service={p.service} toolName={p.tool} desktopExecutable={p.desktopExecutable} />
+        <ConnectionGuide
+          service={p.service}
+          toolName={p.tool}
+          desktopExecutable={p.desktopExecutable}
+        />
       )}
       <div className="mp-console-grid">
         <div className="mp-call-form">
@@ -141,13 +150,27 @@ export function ServiceConsole(p: {
               Varsayılanlara dön
             </button>
           </div>
-          <textarea
-            id="panel-args"
-            spellCheck={false}
-            value={p.args}
-            onChange={(e) => p.onArgs(e.target.value)}
-            rows={6}
-          />
+          {p.service.deployment?.manifest.tools.find((t) => t.name === p.tool)
+            ?.bodySchema ? (
+            <BodyForm
+              key={p.tool}
+              tool={
+                p.service.deployment.manifest.tools.find(
+                  (t) => t.name === p.tool,
+                )!
+              }
+              args={p.args}
+              onChange={p.onArgs}
+            />
+          ) : (
+            <textarea
+              id="panel-args"
+              spellCheck={false}
+              value={p.args}
+              onChange={(e) => p.onArgs(e.target.value)}
+              rows={6}
+            />
+          )}
           <button
             className="mp-button mp-button-dark mp-full"
             disabled={!running || !p.tool || p.callBusy || !!p.busy}
@@ -178,6 +201,7 @@ export function ServiceConsole(p: {
                 <span>✓ {p.result.listedTools.length} araç listelendi</span>
                 <span>{failed ? "×" : "✓"} tools/call</span>
               </div>
+              <ReadResult value={p.result.result.structuredContent} />
               <pre>{JSON.stringify(p.result.result, null, 2)}</pre>
               <p className="mp-result-note">
                 Yalnız bu hizmet sürümü, araç ve argümanlar için geçerlidir.

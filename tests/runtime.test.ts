@@ -34,7 +34,7 @@ test('real MCP initialize/list/call uses only selected tools and validates argum
 });
 test('mock redirect, response limit, fixture gap, missing auth and timeout have distinct safe codes',async()=>{
   const mock=await startMock();try {
-    for(const [path,code] of [['/redirect','SW_REDIRECT_BLOCKED'],['/large','SW_RESPONSE_TOO_LARGE'],['/missing','SW_MOCK_FIXTURE_MISSING'],['/slow','SW_TIMEOUT']]) {const result=await executeTool({...tool,path,parameters:[]},{},mock.target);assert.equal(result.isError,true,path);assert.equal(result.structuredContent?.error.code,code);}
+    for(const [path,code] of [['/redirect','SW_REDIRECT_BLOCKED'],['/large','SW_RESPONSE_TOO_LARGE'],['/missing','SW_MOCK_FIXTURE_MISSING'],['/slow','SW_TIMEOUT']]) {const result=await executeTool({...tool,path,parameters:[]},{},mock.target);assert.equal(result.isError,true,path);assert.equal(result.structuredContent?.error?.code,code);}
     const auth=await executeTool({...tool,auth:{kind:'bearer'}},{},mock.target,{});assert.equal(auth.isError,true);
   }finally{await mock.close();}
 });

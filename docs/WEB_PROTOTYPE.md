@@ -76,3 +76,7 @@ npm run test:desktop
 ```
 
 Güncel sonuçlar, ekranlar, değişen dosya haritası ve kalan riskler: [MANAGEMENT_DEMO_VERIFICATION.md](MANAGEMENT_DEMO_VERIFICATION.md). Installer kurulumu/kaldırması bu turda yapılmamıştır. Commit/push/release veya paket yayınlama yoktur.
+
+## 0.2.0 kontrollü POST eki
+
+Bu belgedeki GET odaklı ilk teslimden sonra eklenen varsayılan-kapalı JSON POST incelemesi, sonuç adaptörü ve yeni gerçek SDK testleri için [READ_POST_DEMO.md](READ_POST_DEMO.md) esas alınır. Kurumsal auth, gerçek veri ve Linux Docker kabulü tamamlanmış sayılmaz.

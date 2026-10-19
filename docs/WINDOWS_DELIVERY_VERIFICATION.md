@@ -84,3 +84,7 @@ CurrentUser/LocalMachine kod imzalama sertifika depolarında uygun sertifika bul
 ## Kalan kapsam
 
 Bu teslim **yerel sentetik Windows yönetim demosu** olarak paketlendi ve doğrulandı. Tam “temiz bilgisayarda kurulum/kaldırma geçti” kabulü Sandbox sonucunu, imzalı dağıtım kabulü ise gerçek sertifikayı bekliyor. Linux engine kabulü [LINUX_DEMO.md](LINUX_DEMO.md) içindeki kapıdır. Kurumsal auth/yetkilendirme ve gerçek Apinizer/Elastic entegrasyonu eklenmedi. Ağda yayın veya kurum pilotu başlatılmadı.
+
+## 0.2.0 ek doğrulaması
+
+0.1.1 kayıtları tarihsel kanıttır. 0.2.0 için `READ_POST_DEMO.md` ve `RELEASE_0.2.0.md` sonuçları esas alınır. 56/56 kaynak testine ek olarak paketli self-test artık ayrı EXE istemcisiyle POST başarı/hatası, iki restart arasındaki metadata ve iki MCP listener kapanışını denetler. Kaynak testindeki Windows Electron positional argüman sorunu `--tool=name` / `--args=JSON` biçimiyle giderildi. Temiz Windows kurulum/kaldırma ve imzalama kapıları hâlâ açıktır; paket smoke testi bunların yerine geçmez.

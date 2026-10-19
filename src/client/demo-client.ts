@@ -22,12 +22,14 @@ export function localEndpoint(value: string | undefined) {
 }
 export async function runDemoClient(argv: string[]) {
   const option = (name: string) => {
+    const inline = argv.find(value => value.startsWith(`${name}=`));
+    if (inline !== undefined) return inline.slice(name.length + 1);
     const index = argv.indexOf(name);
     return index < 0 ? undefined : argv[index + 1];
   };
   const endpoint = localEndpoint(option("--endpoint"));
   const client = new Client(
-    { name: "specwake-independent-demo", version: "0.1.1" },
+    { name: "specwake-independent-demo", version: "0.2.0" },
     { supportedProtocolVersions: [LATEST_PROTOCOL_VERSION] },
   );
   const correlations: string[] = [];

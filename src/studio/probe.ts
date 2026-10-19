@@ -13,7 +13,7 @@ export async function probe(manifest: Manifest, target: unknown, toolName: strin
   const tempRoot = options.tempRoot ?? resolve(ROOT,'.tmp');
   await mkdir(tempRoot,{recursive:true});
   const cwd = await mkdtemp(join(tempRoot,'probe-'));
-  const client = new Client({name:'specwake-studio',version:'0.1.0'});
+  const client = new Client({name:'specwake-studio',version:'0.2.0'});
   const transport = new StdioClientTransport({command:process.execPath,args:[resolve(options.runtimeRoot ?? root,'dist/runtime/runtime/cli.js')],cwd,stderr:'pipe',env:{...options.runtimeEnv,SPECWAKE_BEARER_TOKEN:'mock-only-fake-token',SPECWAKE_API_KEY:'mock-only-fake-key'}});
   try {
     await writeFile(join(cwd,'tools.json'),JSON.stringify(manifest));

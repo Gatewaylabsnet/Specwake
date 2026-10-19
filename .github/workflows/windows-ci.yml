@@ -33,6 +33,10 @@ jobs:
         run: npm test
       - name: Standalone ZIP outside checkout
         run: npm run test:export
+      - name: Independent SDK HTTP GET regression
+        run: npm run test:http
+      - name: Reviewed POST HTTP and standalone stdio
+        run: npm run test:read-post
       - name: Package desktop without installer execution or publishing
         run: npm run desktop:pack:dir
       - name: Packaged desktop smoke test

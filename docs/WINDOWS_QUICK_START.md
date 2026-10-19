@@ -1,4 +1,4 @@
-# Specwake 0.1.1 — Windows demo kurulumu
+# Specwake 0.2.0 — Windows demo kurulumu
 
 Bu paket yerel, sentetik API/MCP yönetim demosudur. Gerçek Apinizer bağlantısı, kurumsal kullanıcı kimliği veya yetkilendirmesi sağlamaz. Panel ve MCP hizmeti yalnız bilgisayarın loopback adresinden erişilir.
 
@@ -11,9 +11,9 @@ Bu paket yerel, sentetik API/MCP yönetim demosudur. Gerçek Apinizer bağlantı
 
 ## İki kullanım seçeneği
 
-**Portable:** `Specwake-0.1.1-Portable-x64.exe` dosyasını yerel bir klasöre kopyalayıp açın. Kurulum gerekmez. Uygulama kullanıcı verisini kullanıcı profilinde saklar; dosya tamamen iz bırakmadan çalışan bir veri taşıma biçimi değildir.
+**Portable:** `Specwake-0.2.0-Portable-x64.exe` dosyasını yerel bir klasöre kopyalayıp açın. Kurulum gerekmez. Uygulama kullanıcı verisini kullanıcı profilinde saklar; dosya tamamen iz bırakmadan çalışan bir veri taşıma biçimi değildir.
 
-**Kurulum:** `Specwake-0.1.1-Setup-x64.exe` dosyasını açın. Kullanıcıya özel kurulumdur, yönetici yükseltmesi istemez. Kurulum konumu ve kısayollar sihirbazdan seçilir. Sonrasında Specwake kısayolunu açın. Kurulumu kaldırmak için Windows'un Yüklü Uygulamalar ekranından Specwake'i seçin. Kaldırmanın kişisel demo verisini sileceğini varsaymayın; veri yönetimi ayrı değerlendirilmelidir.
+**Kurulum:** `Specwake-0.2.0-Setup-x64.exe` dosyasını açın. Kullanıcıya özel kurulumdur, yönetici yükseltmesi istemez. Kurulum konumu ve kısayollar sihirbazdan seçilir. Sonrasında Specwake kısayolunu açın. Kurulumu kaldırmak için Windows'un Yüklü Uygulamalar ekranından Specwake'i seçin. Kaldırmanın kişisel demo verisini sileceğini varsaymayın; veri yönetimi ayrı değerlendirilmelidir.
 
 İki seçenek aynı uygulamadır; aynı anda iki ayrı kurulumdan çalıştırmayın. Uygulama açıldığında yönetim paneli gelir. Önceki bağımsız stdio oluşturucuya sol menüdeki **Bağımsız sunucu oluşturucu** bağlantısından erişilir.
 
@@ -36,6 +36,16 @@ Metadata kullanıcı profili altındaki Electron uygulama-verisi klasörünün `
 - Kopyalama engellenirse ekrandaki görünür komutu seçerek kopyalayın.
 - İstemci bağlanamıyorsa hizmetin çalıştığını, güncel komutu kullandığınızı ve aynı bilgisayarda olduğunuzu kontrol edin.
 - Kayıt dizini kilitliyse başka Specwake süreci olup olmadığını kontrol edin. Var olan süreci veya veri dosyasını otomatik silmeyin. Zorla kapanış sonrası kalan `writer.lock` ancak hiçbir süreç dizini kullanmıyorsa operatörce değerlendirilir.
-- SHA-256 doğrulaması için `Get-FileHash .\Specwake-0.1.1-Portable-x64.exe -Algorithm SHA256` sonucunu aynı teslimdeki `SHA256SUMS-0.1.1.txt` ile karşılaştırın. Checksum, yayıncı imzasının yerine geçmez.
+- SHA-256 doğrulaması için `Get-FileHash .\Specwake-0.2.0-Portable-x64.exe -Algorithm SHA256` sonucunu aynı teslimdeki `SHA256SUMS-0.2.0.txt` ile karşılaştırın. Checksum, yayıncı imzasının yerine geçmez.
 
 Temiz Windows kurulum/kaldırma testi için `WINDOWS_DELIVERY_VERIFICATION.md` içindeki ayrı Sandbox kabul kapısı esas alınır. Mevcut geliştirme bilgisayarındaki paket testleri temiz Windows kurulumunun yapıldığı anlamına gelmez.
+
+## Kontrollü JSON POST demosu (0.2.0)
+
+API kataloğunda **JSON POST demosu ekle** seçin. `/realPersonSearch` işlemini filtreleyip incelemesini açın. JSON object taslağı örnek değer taşımaz ve zorunluluk tahmin etmez. Bu sentetik demo için `required: ["IdNo"]` ekleyin; açıklamayı ve üç ayrı onayı gözden geçirin, ardından satırı seçip kaydedin. Hizmeti başlatın, maskeli IdNo alanına yalnız `DEMO-ID-0001` yazıp çağırın. `demo-app-error`, `demo-empty`, `demo-partial`, `demo-slow` değerleri kontrollü senaryolardır.
+
+HTTP 200 tek başına başarı/tamlık değildir. Yanıt kaynak işlem ve zamanını içerir; `complete:false` tamlık doğrulanmadığını belirtir. Kişisel alanlar maskelenir, çağrı gövdeleri journal'a yazılmaz. Hizmeti durdurup tüm seçimleri kaldırarak **Seçimi kaydet** işlemi kayıtlı manifesti iptal eder. Yeniden etkinleştirme yeni inceleme gerektirir. Gruplar, manifest ve onaylar uygulama yeniden başlatılınca geri yüklenmez; yalnız çağrı metadata'sı korunur.
+
+Ayrıntılar ve bağımsız SDK sözleşmesi: `READ_POST_DEMO.md`, `DEEPSEEK_CLIENT_PROMPT.md`. Başka bilgisayardaki istemci bu bilgisayarın `127.0.0.1` adresine erişemez; bu sürüm uzak ağ yayını veya kurumsal auth sağlamaz.
+
+Tek POST çağrısını EXE istemcisiyle yaparken `--tool=realPersonSearch_bad4aebae3` ve tek argüman olarak `--args={"body":{"IdNo":"DEMO-ID-0001"}}` biçimini kullanın. Windows Electron ayrı `--tool DEĞER` argümanını dosya/URL gibi yorumlayabilir. Bağlantı SDK örneğini panelden almak bu CLI ayrıntısını gerektirmez.

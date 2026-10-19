@@ -1,3 +1,7 @@
+import {
+  READ_POST_ALLOWLIST,
+  validateSyntheticReadBody,
+} from "../demo/read-post-profile.js";
 import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -7,9 +11,14 @@ import { PanelFault } from "./http.js";
 
 export type ApiGroup = ImportedSpec & { id: string; importedAt: string };
 export class DemoCatalog {
+  private readonly originalSources = new Map<string, string>();
+  originalSource(id: string) {
+    return this.originalSources.get(id);
+  }
   readonly groups = new Map<string, ApiGroup>();
   private constructor(
     readonly sample: string,
+    readonly readPostSample: string,
     private readonly reference: ImportedSpec,
   ) {}
   static async create(root: string) {
@@ -17,7 +26,17 @@ export class DemoCatalog {
       join(root, "examples/operations-demo.yaml"),
       "utf8",
     );
-    return new DemoCatalog(sample, importSpec(sample));
+    const readPostSample = await readFile(
+      join(root, "examples/read-post-synthetic.json"),
+      "utf8",
+    );
+    return new DemoCatalog(sample, readPostSample, {
+      ...importSpec(sample),
+      operations: [
+        ...importSpec(sample).operations,
+        ...importSpec(readPostSample).operations,
+      ],
+    });
   }
   import(source: string) {
     if (this.groups.size >= 8)
@@ -37,12 +56,19 @@ export class DemoCatalog {
       );
     }
     for (const operation of spec.operations) {
+      if (
+        operation.method === "POST" &&
+        !READ_POST_ALLOWLIST.includes(operation.id)
+      )
+        operation.issues.push(
+          "Bu POST işlemi demo salt-okuma izin listesinde yok.",
+        );
       const fixture = this.reference.operations.find(
         (op) => op.id === operation.id,
       );
       if (
         !fixture ||
-        operation.auth.kind !== "none" ||
+        operation.auth.kind !== fixture?.auth.kind ||
         JSON.stringify(
           operation.parameters.map(({ description, ...p }) => p),
         ) !==
@@ -59,6 +85,7 @@ export class DemoCatalog {
       importedAt: new Date().toISOString(),
     };
     this.groups.set(group.id, group);
+    this.originalSources.set(group.id, source);
     return group;
   }
   select(id: string, selections: Selection[]) {
@@ -70,12 +97,15 @@ export class DemoCatalog {
         "API grubunu yeniden içe aktarın.",
       );
     try {
-      return { group, manifest: selectTools(group, selections) };
+      const manifest = selectTools(group, selections);
+      for (const tool of manifest.tools)
+        if (tool.method === "POST") validateSyntheticReadBody(tool);
+      return { group, manifest };
     } catch {
       throw new PanelFault(
         400,
         "SELECTION_INVALID",
-        "En az bir izin verilen GET işlemi ve benzersiz, geçerli araç adı seçin.",
+        "İzin verilen GET veya açıkça onaylı POST işlemleri ve benzersiz, geçerli araç adları seçin.",
       );
     }
   }

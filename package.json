@@ -1,6 +1,6 @@
 {
   "name": "specwake",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -13,6 +13,7 @@
     "panel": "npm run build && tsx src/panel/cli.ts",
     "panel:start": "tsx src/panel/cli.ts",
     "test:http": "tsx scripts/verify-http.ts",
+    "test:read-post": "tsx scripts/verify-read-post.ts",
     "test:linux": "node scripts/verify-linux.mjs",
     "test:windows:prepare": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prepare-windows-sandbox.ps1",
     "desktop:checksums": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/checksums-windows.ps1",

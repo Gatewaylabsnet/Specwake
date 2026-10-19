@@ -1,3 +1,5 @@
+import { serveReadPost } from './read-post-api.js';
+import { READ_POST_ALLOWLIST, READ_POST_ADAPTER, MOCK_UPSTREAM_TOKEN } from './read-post-profile.js';
 import { createServer } from "node:http";
 /** Explicit synthetic upstream. No remote target, environment credential or arbitrary URL. */
 export async function startDemoApi() {
@@ -36,9 +38,17 @@ export async function startDemoApi() {
     const url = new URL(req.url!, "http://127.0.0.1");
     const send = (value: unknown) =>
       res.end(JSON.stringify({ demo: true, ...(value as object) }));
+    if (req.method === 'POST' && url.pathname.startsWith('/demo/')) {
+      void serveReadPost(req, res, url.pathname.slice('/demo'.length)); return;
+    }
     if (req.method !== "GET") {
       res.writeHead(405);
       send({ error: "GET only" });
+    } else if (['/demo/health', '/demo/health2'].includes(url.pathname)) {
+      if (req.headers.authorization !== `Bearer ${MOCK_UPSTREAM_TOKEN}`) {
+        res.writeHead(401);
+        send({ error: "Synthetic credential required" });
+      } else send({ status: 'healthy', synthetic: true });
     } else if (url.pathname === "/demo/services")
       send({
         services: services.filter(
@@ -88,7 +98,9 @@ export async function startDemoApi() {
       baseUrl: `http://127.0.0.1:${(server.address() as { port: number }).port}/demo`,
       allowedAddresses: ["127.0.0.1"],
       allowInsecureHttp: false,
+      allowedReadPosts: READ_POST_ALLOWLIST, responseAdapter: READ_POST_ADAPTER,
     },
+    executionContext: {tokenProvider: {bearerToken: async () => MOCK_UPSTREAM_TOKEN}},
     close: () =>
       new Promise<void>((resolve) => {
         server.close(() => resolve());

@@ -1,11 +1,17 @@
 import { resolve } from "node:path";
 import { startStudio } from "../studio/server.js";
 import { ROOT } from "../studio/export.js";
-const port = Number(process.env.SPECWAKE_PORT ?? 4319);
-if (!Number.isInteger(port) || port < 0 || port > 65535)
-  throw new Error("Invalid SPECWAKE_PORT");
+import { demoConfig } from "./config.js";
+import { existsSync } from "node:fs";
 try {
-  const studio = await startStudio(port, {
+  const config = demoConfig(process.env);
+  if (
+    config.listeners.bindAddress === "0.0.0.0" &&
+    (process.platform !== "linux" || !existsSync("/.dockerenv"))
+  )
+    throw new Error("Container demo mode requires a Linux Docker container");
+  const studio = await startStudio(config.panelPort, {
+    listeners: config.listeners,
     panelDataDir: resolve(
       process.env.SPECWAKE_DATA_DIR ?? resolve(ROOT, ".local-data"),
     ),

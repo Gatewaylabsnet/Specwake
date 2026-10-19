@@ -8,6 +8,7 @@ import {
   writeFile,
 } from "node:fs/promises";
 import { join } from "node:path";
+import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { CLIENT_LABELS, type CallEvent, type EventSink } from "./types.js";
 
@@ -50,23 +51,24 @@ export class LocalJournal implements EventSink {
       } catch (error) {
         if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
       }
-      if (journal.prune()) await journal.persist(journal.events);
+      const retained = journal.retained();
+      if (retained.length !== journal.events.length)
+        await journal.persist(retained);
+      journal.events = retained;
       return journal;
     } catch (error) {
       await unlink(join(folder, "writer.lock"));
       throw error;
     }
   }
-  private prune() {
-    const previous = this.events.length;
+  private retained() {
     const cutoff = Date.now() - RETENTION_MS;
-    this.events = this.events
+    return this.events
       .filter(
         (e) =>
           Date.parse(e.at) >= cutoff && Date.parse(e.at) <= Date.now() + 60000,
       )
       .slice(-MAX_EVENTS);
-    return previous !== this.events.length;
   }
   private async persist(events: CallEvent[]) {
     const content = JSON.stringify(events);
@@ -92,16 +94,28 @@ export class LocalJournal implements EventSink {
     // Strict allowlist: accidentally adding bodies, headers or tokens fails closed.
     const event = eventSchema.parse(input);
     return this.enqueue(async () => {
-      this.prune();
-      const next = [...this.events, event].slice(-MAX_EVENTS);
+      const next = [...this.retained(), event].slice(-MAX_EVENTS);
       await this.persist(next);
       this.events = next;
     });
   }
   read() {
     return this.enqueue(async () => {
-      if (this.prune()) await this.persist(this.events);
+      const next = this.retained();
+      if (next.length !== this.events.length) await this.persist(next);
+      this.events = next;
       return this.events.map((e) => ({ ...e }));
+    });
+  }
+  health() {
+    return this.enqueue(async () => {
+      const file = join(this.folder, `.health-${randomUUID()}`);
+      const probe = await open(file, "wx", 0o600);
+      try {
+        await probe.close();
+      } finally {
+        await unlink(file);
+      }
     });
   }
   async close() {

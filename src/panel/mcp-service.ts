@@ -16,6 +16,7 @@ import type { EventSink, ClientLabel } from "./types.js";
 import { makeProbeReceipt } from "../core/probe-context.js";
 import { json, PanelFault } from "./http.js";
 import { serveMcpRequest } from "./mcp-request.js";
+import { localListeners, type DemoListeners } from "./config.js";
 
 export const MCP_PROTOCOL = LATEST_PROTOCOL_VERSION;
 export interface Deployment {
@@ -37,6 +38,7 @@ export class DemoMcpService {
   constructor(
     private readonly target: Target,
     private readonly sink: EventSink,
+    private readonly listeners: DemoListeners = localListeners,
   ) {}
   state() {
     return {
@@ -87,7 +89,11 @@ export class DemoMcpService {
     try {
       await new Promise<void>((resolve, reject) => {
         this.listener!.once("error", reject);
-        this.listener!.listen(0, "127.0.0.1", resolve);
+        this.listener!.listen(
+          this.listeners.mcpPort,
+          this.listeners.bindAddress,
+          resolve,
+        );
       });
       this.endpoint = `http://127.0.0.1:${(this.listener.address() as { port: number }).port}/mcp`;
       // Running is earned by an actual SDK initialize + tools/list handshake.

@@ -1,3 +1,5 @@
+# Allowlist only build inputs. Credentials, local metadata, tests/test keys,
+# attachments, reports, screenshots, .git and desktop binaries never enter context.
 *
 !package.json
 !package-lock.json

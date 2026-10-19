@@ -1,4 +1,5 @@
 import React from "react";
+import { ConnectionGuide } from "./ConnectionGuide.js";
 import type { PanelState } from "./api.js";
 import type { CallReply } from "./api.js";
 
@@ -19,6 +20,8 @@ export function ServiceConsole(p: {
   onClient(value: string): void;
   onReset(): void;
   onCall(): void;
+  onReview(): void;
+  desktopExecutable?: string;
 }) {
   const running =
     !p.unavailable && p.service.phase === "running" && p.service.listening;
@@ -81,6 +84,17 @@ export function ServiceConsole(p: {
           </button>
         </div>
       </div>
+      {!running && !p.canStart && !p.unavailable && (
+        <div className="mp-catalog-next">
+          <p>Başlatmak için API kataloğunda GET seçimini gözden geçirip kaydedin. Sayfa yenilendiğinde seçim yeniden onaylanır.</p>
+          <button className="mp-button" onClick={p.onReview}>
+            GET seçimini gözden geçir →
+          </button>
+        </div>
+      )}
+      {!p.unavailable && (
+        <ConnectionGuide service={p.service} toolName={p.tool} desktopExecutable={p.desktopExecutable} />
+      )}
       <div className="mp-console-grid">
         <div className="mp-call-form">
           <h3>Örnek çağrı</h3>

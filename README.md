@@ -4,28 +4,32 @@
 
 This first working MVP has one five-step workflow: import a file, select operations, edit/review tool definitions, call the bundled mock through an actual MCP connection, then download and independently run the server package. No account, telemetry, LLM, cloud sync or paid AI service is involved.
 
-![Specwake mock call](docs/screenshots/03-mock-success.jpg)
+![Specwake management demo](docs/screenshots/07-management-overview.png)
 
 ## Windows desktop EXE
 
 Specwake also runs in its own native application window. The Windows x64 portable EXE and per-user installer include Electron, Chromium and Node.js; end users do not need a browser, Node.js or npm to run the authoring application. The desktop UI uses the same verified core and runtime as the optional web mode. Generated MCP server ZIPs still require Node.js 24+ on the machine where they run.
 
-Download **[Specwake v0.1.0](https://github.com/Gatewaylabsnet/Specwake/releases/tag/v0.1.0)**:
+Download **[Specwake v0.1.1 — local management demo](https://github.com/Gatewaylabsnet/Specwake/releases/tag/v0.1.1)**:
 
-- [Portable EXE — no installation](https://github.com/Gatewaylabsnet/Specwake/releases/download/v0.1.0/Specwake-0.1.0-Portable-x64.exe)
-- [Windows setup EXE](https://github.com/Gatewaylabsnet/Specwake/releases/download/v0.1.0/Specwake-0.1.0-Setup-x64.exe)
-- [SHA-256 checksums](https://github.com/Gatewaylabsnet/Specwake/releases/download/v0.1.0/SHA256SUMS.txt)
+- [Portable EXE — no installation](https://github.com/Gatewaylabsnet/Specwake/releases/download/v0.1.1/Specwake-0.1.1-Portable-x64.exe)
+- [Windows setup EXE](https://github.com/Gatewaylabsnet/Specwake/releases/download/v0.1.1/Specwake-0.1.1-Setup-x64.exe)
+- [SHA-256 checksums](https://github.com/Gatewaylabsnet/Specwake/releases/download/v0.1.1/SHA256SUMS-0.1.1.txt)
 
 Local build outputs:
 
-- `release/Specwake-0.1.0-Portable-x64.exe`: double-click; no installation required.
-- `release/Specwake-0.1.0-Setup-x64.exe`: per-user installation wizard and shortcuts.
+- `release/Specwake-0.1.1-Portable-x64.exe`: current local demo; opens the management panel.
+- `release/Specwake-0.1.1-Setup-x64.exe`: current per-user installer and shortcuts.
+- `release/SHA256SUMS-0.1.1.txt`: current package hashes; binaries are distributed through the release assets above.
+
+The Windows demo includes an independent SDK client mode in the EXE. Copy its PowerShell command from the MCP service screen; Node.js/npm and the source checkout are unnecessary for that client. The exported standalone stdio ZIP still needs Node.js 24+. See the [Windows quick start](docs/WINDOWS_QUICK_START.md) and [delivery verification](docs/WINDOWS_DELIVERY_VERIFICATION.md). The previous v0.1.0 release remains available as a historical build.
 
 Build from source:
 
 ```sh
 npm ci
 npm run desktop:pack
+npm run desktop:checksums
 npm run test:desktop
 ```
 
@@ -34,6 +38,8 @@ npm run test:desktop
 These MVP EXEs are **unsigned**; Windows may display an unknown-publisher/SmartScreen prompt. Binaries are distributed through GitHub Releases; local build outputs remain ignored by Git. This repository contains the source and repeatable packaging commands. See [desktop packaging and verification](docs/DESKTOP.md).
 
 ## Run locally
+
+For the Turkish management demo, run `npm ci` then `npm run panel` and open **http://127.0.0.1:4319/panel**. It provides an explicit OpenAPI → selected GETs → live HTTP MCP → call metadata workflow against a synthetic local API. Copy the actual MCP endpoint and separate official SDK client command from the service page. This is a local demo without enterprise authentication or an Apinizer connection. See the [five-minute demo](docs/MANAGER_DEMO_5_MIN.md), [current verification](docs/MANAGEMENT_DEMO_VERIFICATION.md), and [Linux/Docker guide](docs/LINUX_DEMO.md). Version 0.1.1 includes the current management demo; clean Windows install/uninstall and Linux/Docker runtime verification remain pending.
 
 Requirements: **Node.js 24+**, npm, and access to the public npm registry for the initial install. Versions and both application/export lockfiles are pinned.
 

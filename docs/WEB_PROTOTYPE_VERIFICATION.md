@@ -1,5 +1,7 @@
 # Web prototipi — teslim ve inceleme kanıtı
 
+> Bu belge 17 Ekim turunun tarihsel kaydıdır. 18 Ekim yönetim demosu, 46 test, ayrı SDK istemcisi ve güncel Docker hazırlığı için [MANAGEMENT_DEMO_VERIFICATION.md](MANAGEMENT_DEMO_VERIFICATION.md) esas alınmalıdır. Aşağıdaki eski Docker önerisinin yerini [LINUX_DEMO.md](LINUX_DEMO.md) alır.
+
 17 Ekim 2026. Yerel Windows / Node 24. Başlangıç HEAD `f003349548aef01f6c0e4c1d1e21b1568046568f`; önceki ikinci tur değişiklikleri zaten commit edilmemişti ve korundu. Başlangıçta yeniden çalıştırılan **33/33** test geçti. Bu tur commit, push, PR, tag, release, public deployment veya uzaktan CI çalıştırması yoktur. ConfigDiffTool/başka proje üzerinde çalışma yapılmadı.
 
 ## Teslim edilen davranış

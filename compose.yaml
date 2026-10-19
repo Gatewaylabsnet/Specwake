@@ -1,0 +1,40 @@
+services:
+  specwake:
+    image: ${SPECWAKE_IMAGE:-specwake:demo-local}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    init: true
+    user: "1000:1000"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      NODE_ENV: production
+      SPECWAKE_CONTAINER_DEMO: "1"
+      SPECWAKE_PORT: "4319"
+      SPECWAKE_MCP_PORT: "4320"
+      SPECWAKE_DATA_DIR: /app/.local-data
+    ports:
+      - "127.0.0.1:4319:4319"
+      - "127.0.0.1:4320:4320"
+    volumes:
+      - metadata:/app/.local-data
+    tmpfs:
+      - /app/.tmp:uid=1000,gid=1000,mode=0700,size=64m
+      - /tmp:uid=1000,gid=1000,mode=0700,size=64m
+    stop_grace_period: 20s
+    restart: unless-stopped
+    pids_limit: 128
+    mem_limit: 768m
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+volumes:
+  metadata:
+    name: ${SPECWAKE_DATA_VOLUME:-specwake-demo-data}

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { CallHistory } from "./CallHistory.js";
 import type { Stats, PanelState } from "./api.js";
 
 export type Filters = {
@@ -120,21 +121,21 @@ export function StatisticsView({
           ],
           [
             "Hata oranı",
-            stats
+            stats?.calls
               ? `${(stats.errorRate * 100).toLocaleString("tr-TR", { maximumFractionDigits: 1 })}%`
-              : undefined,
+              : "—",
             `${stats?.errors ?? 0} hata / ${stats?.calls ?? 0} çağrı`,
             "◉",
           ],
           [
             "Ortalama gecikme",
-            stats ? `${stats.averageMs} ms` : undefined,
+            stats?.calls ? `${stats.averageMs} ms` : "—",
             "MCP işlemi + upstream süresi",
             "⌁",
           ],
           [
             "P95 gecikme",
-            stats ? `${stats.p95Ms} ms` : undefined,
+            stats?.calls ? `${stats.p95Ms} ms` : "—",
             "En yakın sıra yöntemi",
             "◷",
           ],
@@ -245,73 +246,24 @@ export function StatisticsView({
           </div>
         </div>
       )}
-      <div className="mp-card mp-logs">
-        <div className="mp-section-head">
-          <div>
-            <h3>Son çağrılar</h3>
-            <p>
-              Yalnız metadata · en yeni {logsOnly ? 100 : 6} kayıt · İstanbul
-              saati (UTC+3)
-            </p>
-          </div>
-          <span className="mp-chip">
-            {stats?.retained ?? 0} / 5.000 saklanan
-          </span>
-        </div>
-        <div className="mp-table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>Zaman / korelasyon</th>
-                <th>Araç / API grubu</th>
-                <th>Yerel istemci</th>
-                <th>Sonuç</th>
-                <th>Süre</th>
-              </tr>
-            </thead>
-            <tbody>
-              {stats?.recent.slice(0, logsOnly ? 100 : 6).map((e) => (
-                <tr key={e.id}>
-                  <td>
-                    {time(e.at)}
-                    <small title={e.id}>{e.id.slice(0, 8)}</small>
-                  </td>
-                  <td>
-                    <code>{e.tool}</code>
-                    <small>{groupName(e.groupId)}</small>
-                  </td>
-                  <td>
-                    <code>{e.client}</code>
-                    <small>Doğrulanmamış etiket</small>
-                  </td>
-                  <td>
-                    <span
-                      className={`mp-chip ${e.outcome === "success" ? "success" : "danger"}`}
-                    >
-                      {e.outcome === "success" ? "Başarılı" : "Hatalı"}
-                    </span>
-                    <small>{e.code}</small>
-                  </td>
-                  <td className="mp-duration">{e.durationMs} ms</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {!stats?.recent.length && (
-            <div className="mp-empty compact">
-              Bu filtrelerde kayıt bulunamadı. Bir çağrı çalıştırın veya
-              filtreleri değiştirin.
-            </div>
-          )}
-        </div>
-      </div>
+      <CallHistory
+        events={stats?.recent ?? []}
+        groupName={groupName}
+        retained={stats?.retained ?? 0}
+        limit={logsOnly ? 100 : 6}
+        onTool={(tool) => onFilters({ ...filters, tool })}
+        onGroup={(groupId) => onFilters({ ...filters, groupId })}
+      />
       <p className="mp-calculation">
         {stats
           ? `${new Date(stats.from).toLocaleString("tr-TR", { timeZone: "Europe/Istanbul" })} – ${new Date(stats.to).toLocaleString("tr-TR", { timeZone: "Europe/Istanbul" })}`
           : "İstatistikler yükleniyor…"}{" "}
-        · Hata oranı = hatalı / tüm kaydedilen çağrılar. Sağlık kontrolleri ve
+        · Sayım: yalnız kaydedilmiş tools/call denemeleri (retler dahil). Hata
+        oranı = hatalı / tüm kaydedilen çağrılar. Sağlık kontrolleri ve
         initialize/list istekleri sayılmaz. Kayıtlar en çok 7 gün / 5.000 olay;
-        görünüm 5 saniyede yenilenir. Geçmiş API grupları kimlikleriyle korunur.
+        görünüm 5 saniyede yenilenir. Süre SDK/MCP + demo API işlemidir;
+        initialize/list, upload ve disk yazımı hariç. Tüm çağrılar sentetik demo
+        verisine aittir. Geçmiş API grupları kimlikleriyle korunur.
       </p>
     </section>
   );

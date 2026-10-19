@@ -1,6 +1,6 @@
 # Yerel web prototipi
 
-17 Ekim 2026. Bu tur yalnız `C:\Projects\Specwake` içinde geliştirildi. Önceki commit edilmemiş ikinci tur korundu. Mevcut stdio oluşturucu ve bağımsız ZIP export yanında gerçek HTTP MCP yönetim prototipi bulunur. Eski `NEXT_ROUND.md` içindeki web tasarımının yerel demo bölümü bu turda uygulanmıştır; kurumsal/uzak yayın kısmı uygulanmamıştır.
+18 Ekim 2026. Mevcut React/TypeScript tasarımı üzerinde yönetici görünümü, ayrı MCP bağlantı ekranı, güvenli çağrı ayrıntısı ve bağımsız SDK istemcisi tamamlandı. Mevcut stdio oluşturucu ve ZIP export korunur. Güncel kanıt: [MANAGEMENT_DEMO_VERIFICATION.md](MANAGEMENT_DEMO_VERIFICATION.md). Önceki turun tarihsel kanıtı [WEB_PROTOTYPE_VERIFICATION.md](WEB_PROTOTYPE_VERIFICATION.md) içinde kalır; kurumsal/uzak yayın bu teslimde yoktur.
 
 ## Başlatma
 
@@ -22,14 +22,16 @@ $env:SPECWAKE_DATA_DIR = 'C:\Projects\Specwake\.local-data'
 npm run panel:start
 ```
 
-Varsayılan bind her zaman `127.0.0.1`; wildcard bind veya panelden hedef URL/komut girme seçeneği yoktur. Bir veri dizinine yalnız bir süreç yazabilir. `.local-data/` Git ve Docker bağlamı dışında tutulur. Masaüstünde kayıt yeri Electron kullanıcı-verisi dizinindeki `demo-data` klasörüdür; paket içine yazılmaz.
+Native varsayılan bind `127.0.0.1`, MCP portu dinamiktir. İsteğe bağlı `SPECWAKE_MCP_PORT` sabit bir yerel port seçer; panel portuyla aynı olamaz. Panelden bind/hedef URL/komut girilemez. Ayrı Linux Docker modu ve host port sınırı aşağıdaki rehberdedir. Bir veri dizinine yalnız bir süreç yazabilir. `.local-data/` Git ve Docker bağlamı dışında tutulur. Masaüstünde kayıt yeri Electron kullanıcı-verisi dizinindeki `demo-data` klasörüdür; paket içine yazılmaz.
 
-## Yönetici demosu — 5 adım
+## Yönetici demosu
+
+Dakika dakika, panel dışındaki gerçek MCP istemcisini de içeren senaryo: [MANAGER_DEMO_5_MIN.md](MANAGER_DEMO_5_MIN.md). Genel bakışta hizmet durumu ve altı adımlı akış; API kataloğu, MCP hizmeti/bağlantı ve çağrı kayıtları ayrı görünümlerdir. Akışın son iki düğmesi bağlantı/inceleme yönlendirmesidir; kullanıcı eylemi ölçülmeden tamamlandı işareti verilmez.
 
 1. **API grupları & araçlar** sekmesinde **Demo API ekle** kullanın veya `examples/operations-demo.yaml` dosyasını yükleyin. OpenAPI çekirdeği JSON/YAML doğrulamasını yapar; hiçbir işlem önceden seçilmez.
 2. Beş GET işlemini seçin. POST görünür fakat kapalıdır. Arama, yalnız uygun GET filtresi ve görünen uygun işlemleri toplu seçme kullanılabilir. En çok 8 API grubu ve hizmet başına 64 araç desteklenir. Tek MCP hizmeti aynı anda bir API grubuna bağlıdır.
 3. **Seçimi kaydet → Hizmeti başlat**. Düğme gerçek listener açar; SDK initialize ve tools/list sağlık kontrolü başarılı olmadan durum “Çalışıyor” olmaz. Çalışan hizmetin seçimi değiştirilemez; önce durdurun.
-4. `list_services_*` için `{}`, `get_service_*` için `{"path_id":"orders"}` ile **Çağrıyı çalıştır**. Panel backend'i resmi SDK istemcisiyle HTTP initialize → tools/list → tools/call çalıştırır. `demo_failure_*` kontrollü 503, `demo_delay_*` yaklaşık 1,6 saniye gecikme üretir. Bunlar sentetik upstream davranışlarıdır, sabit grafik değeri değildir.
+4. MCP hizmeti ekranında gerçek adresi veya **İstemci komutunu kopyala** düğmesini kullanın. Proje klasöründe kopyalanan komut resmi SDK ile ayrı süreçte initialize/list çalıştırır. `--exercise` eklemek için `/services`, `/summary`, `/simulate/error`, `/simulate/slow` GET işlemlerini seçin: başarı, 503, gerçek gecikme ve seçilmeyen araç reddi denenir. `--tool ARAÇ_ADI --args '{}'` tek çağrı yapar. SDK kod örneği ayrıca kopyalanabilir. Paneldeki örnek çağrı da gerçek HTTP kullanır; tek başına harici uyumluluk kanıtı sayılmaz. `demo_failure_*` kontrollü 503, `demo_delay_*` yaklaşık 1,6 saniye gecikme üretir.
 5. **Genel bakış / Çağrı kayıtları** sekmesinde çağrı, hata, gecikme ve metadata kayıtlarını gösterin. API/proxy, araç, yerel istemci ve zaman aralığı filtrelerini deneyin. **Durdur** sonrasında port yeni çağrıları kabul etmez; bekleyen çağrıların sonlandırılması/kayıt yazımı beklenir. Süreci yeniden başlatınca kayıtlar korunur, API grupları ve hizmet seçimi yeniden içe aktarılır. Önceki oturumun grup kimliği geçmişte görünür.
 
 Demo upstream yalnız uygulamanın açtığı sabit sentetik sunucudur. `servers` adresleri kullanılmaz; fixture dışında yol/parametre/auth içeren işlemler seçilemez. `proxy` burada içe aktarılan API grubudur, gerçek Apinizer kimliği değildir. `panel-demo`, `local-script`, `qa-demo` etiketleri doğrulanmış kullanıcı değildir; yabancı etiketler `local-unverified` olarak kaydedilir. GET'in yan etkisiz olduğu varsayılmaz; araç anotasyonları muhafazakârdır.
@@ -51,25 +53,15 @@ Harici **yerel** MCP istemcisi panelde görünen adrese bağlanabilir. İsteğe 
 - Tek yazıcı kilidi vardır. Normal kapanış kilidi kaldırır. Zorla process sonlandırma/güç kaybında kilit kalabilir: önce o dizini kullanan **hiçbir süreç kalmadığını** doğrulayın, yalnız `writer.lock` dosyasını operatör kaldırıp yeniden başlatsın. Kayıt dosyası silinmez. Bozuk/büyük kayıt dosyası sessizce ezilmez.
 - Aralıklar: 15 dakika, 1 saat, 24 saat, 7 gün. Olayın tamamlanma zamanı filtrelenir; tüm kırılımlar aynı filtrelenmiş kümeye dayanır. Grafik 12 eşit dilimde gerçek olay sayısını gösterir. Overview en yeni 6, kayıt sekmesi en yeni 100 olayı gösterir; toplamlar tüm saklanan/filtrelenen kümeden hesaplanır.
 - Çağrı sayısı: SDK'ya ulaşan ayrıştırılmış `tools/call` denemeleri; seçilmeyen araç ve yanlış argüman retleri dahil. Initialize/list/sağlık kontrolü ve JSON ayrıştırmasından önce reddedilen Host/Origin/boyut istekleri sayılmaz. Bu sayaç tüm HTTP trafiğinin metriği değildir.
-- Hata oranı = hatalı kaydedilmiş çağrı / toplam kaydedilmiş çağrı. Sıfır çağrıda sıfır gösterilir ve “veri yok” durumu belirtilir. Gecikme, JSON okunmasından sonra SDK/MCP + upstream işleme süresidir; initialize/list, ağdan upload ve kayıt dosyası yazma süresi hariçtir. Ortalama aritmetik ortalama, P95 sıralı sürelerde `ceil(0.95*N)` konumudur. UI zamanı İstanbul/UTC+3, disk UTC'dir.
+- Hata oranı = hatalı kaydedilmiş çağrı / toplam kaydedilmiş çağrı. Sıfır çağrıda oran ve gecikmeler `—`, çağrı sayısı 0 gösterilir; grafik üretilmez. Gecikme, JSON okunmasından sonra SDK/MCP + upstream işleme süresidir; initialize/list, ağdan upload ve kayıt dosyası yazma süresi hariçtir. Ortalama aritmetik ortalama, P95 sıralı sürelerde `ceil(0.95*N)` konumudur. UI zamanı İstanbul/UTC+3, disk UTC'dir. Zaman düğmesi güvenli kod/özet, tam UTC ve İstanbul zamanı, süre, istemci etiketi, API/araç, korelasyon ve çalışma kimliğini içeren ayrıntıyı açar. Escape pencereyi kapatır ve odağı satıra döndürür.
 
 ## Linux / Docker hazırlığı
 
 **Bu makinede Docker CLI bulundu ancak `dockerDesktopLinuxEngine` motoruna bağlanılamadı. Docker build/container ve gerçek Linux smoke testi çalıştırılmadı.** Dockerfile bir hazırlıktır, doğrulanmış Linux dağıtımı değildir. Motor veya OS ayarı değiştirilmedi; sunucuya erişilmedi.
 
-İzole Linux cihazında Node 24 ile aynı `npm ci && npm run panel` akışı kullanılabilir. Docker hazırlığı:
+İzole Linux cihazında Node 24 ile aynı `npm ci` ardından `npm run panel` akışı kullanılabilir. Container kurulumu için [LINUX_DEMO.md](LINUX_DEMO.md) ve kökteki `compose.yaml` esas alınır. Container içi bind `0.0.0.0`, host yayınları yalnız `127.0.0.1:4319` ve `127.0.0.1:4320`'dir; host networking kullanılmaz. Nonroot kullanıcı, salt okunur root, yazılabilir named volume/tmpfs, sağlık kontrolü, log sınırı, yedekleme ve geri dönüş adımları rehberdedir.
 
-```sh
-docker build -t specwake:local .
-docker volume create specwake-demo-data
-docker run --rm --name specwake-local-demo --network host \
-  --mount source=specwake-demo-data,target=/app/.local-data \
-  specwake:local
-```
-
-`--network host` burada **Linux** içindir: Node uygulamasının loopback bind'ini korur; panel ve dinamik MCP portu yalnız o makinedeki istemcilere açıktır. Portları `-p 0.0.0.0:...` ile yayımlamayın. Varsayılan container ağıyla çalıştırırsanız içerideki loopback'e sadece container içinden ulaşılır. Docker Desktop host networking ayarını açmanız istenmiyor. Base image'ın mevcut `node` kullanıcısı kullanılır; host hesabı veya izinleri değiştirilmez.
-
-Docker kabul kapısı: temiz build → container içinde aynı HTTP MCP akışı → host loopback sınırı → restart + volume kayıt devamlılığı → stop sonrası bağlantı reddi → güvenli log kontrolü. Bu adımlar çalıştırılmadan başarılı dağıtım denemez. Demo image kaynak/tsx ve geliştirme bağımlılıklarını içerir, Electron binary indirme scriptleri çalışmaz. Üretim image küçültme, digest sabitleme ve ayrı dağıtım incelemesi sonraki aşamadır.
+`npm run test:linux` temiz build, bağımsız HTTP istemcisi, izinler, loopback yayınları, düzgün kapanma ve volume kalıcılığını doğrulamak için hazırdır. Motor yoksa exit 1 / `not-run-engine-unavailable` verir. Bu adımlar gerçekten çalıştırılmadan başarılı Linux dağıtımı denemez. Demo image kaynak/tsx ve geliştirme bağımlılıklarını içerir; Electron binary indirme scriptleri çalışmaz. İmaj digest sabitleme ve üretim dağıtımı sonraki incelemeye bırakılmıştır.
 
 Loopback/izole ortam dışına çıkış için TLS, yönetim API'si ile MCP için ayrı ve uygun kimlik doğrulama/yetkilendirme, erişim politikası, denetlenmiş upstream/DNS/PKI ve güvenli secret yönetimi gerekir. LDAP/SSO ertelenmesi bu gereksinimleri kaldırmaz. Apinizer, Elastic, SIEM, hesap/credential oluşturma veya uzaktan/public yayın bu teslimde yoktur.
 
@@ -77,9 +69,10 @@ Loopback/izole ortam dışına çıkış için TLS, yönetim API'si ile MCP içi
 
 ```powershell
 npm test
+npm run test:http
 npm run test:export
 npm run desktop:pack:dir
 npm run test:desktop
 ```
 
-Sonuçlar, ekranlar, değişen dosya haritası ve kalan riskler: [WEB_PROTOTYPE_VERIFICATION.md](WEB_PROTOTYPE_VERIFICATION.md). Installer kurulumu/kaldırması gerekmez ve bu turda yapılmamıştır.
+Güncel sonuçlar, ekranlar, değişen dosya haritası ve kalan riskler: [MANAGEMENT_DEMO_VERIFICATION.md](MANAGEMENT_DEMO_VERIFICATION.md). Installer kurulumu/kaldırması bu turda yapılmamıştır. Commit/push/release veya paket yayınlama yoktur.

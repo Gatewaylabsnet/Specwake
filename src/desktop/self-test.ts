@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { desktopWebPreferences, isDesktopUrl } from './policy.js';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
+import { desktopPanelSelfTest } from './panel-self-test.js';
 
 /** Packaged backend test; no DOM automation, remote debugging port or privileged renderer bridge. */
 export async function desktopSelfTest(origin: string, reportPath: string, root: string) {
@@ -32,5 +33,6 @@ export async function desktopSelfTest(origin: string, reportPath: string, root: 
   assert.equal(foreign.status,403);
   assert.equal(isDesktopUrl('https://example.invalid',origin),false);
   assert.equal(desktopWebPreferences.nodeIntegration,false);assert.equal(desktopWebPreferences.sandbox,true);
-  await writeFile(reportPath,JSON.stringify({passed:true,packaged:true,electron:process.versions.electron,node:process.versions.node,checks:['bundled UI loaded in BrowserWindow','dependencies resolved inside packaged resources','sample import','tool preview','bundled runtime MCP initialize/list/call','deterministic mock response','standalone ZIP export from bundled resources','foreign origin rejected','renderer sandbox / no Node integration'],origin},null,2));
+  const panel = await desktopPanelSelfTest(origin, post);
+  await writeFile(reportPath,JSON.stringify({passed:true,packaged:true,electron:process.versions.electron,node:process.versions.node,checks:['management panel loaded in sandboxed BrowserWindow','dependencies resolved inside packaged resources','sample import','tool preview','bundled runtime MCP initialize/list/call','deterministic mock response','standalone ZIP export from bundled resources','foreign origin rejected','renderer sandbox / no Node integration','bundled separate-process HTTP MCP client without Node/npm','real HTTP success/error/delay/selection boundary','MCP stop closes listener'],origin,...panel},null,2));
 }

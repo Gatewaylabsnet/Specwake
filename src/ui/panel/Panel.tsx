@@ -4,10 +4,13 @@ import { ServiceConsole } from "./ServiceConsole.js";
 import { StatisticsView } from "./StatisticsView.js";
 import { panelApi, panelJson, defaults, type PanelState } from "./api.js";
 import { usePanelController } from "./usePanelController.js";
+import { OverviewService } from "./OverviewService.js";
 import "./panel.css";
 
 export default function Panel() {
-  const [page, setPage] = useState<"overview" | "catalog" | "logs">("overview");
+  const [page, setPage] = useState<"overview" | "catalog" | "service" | "logs">(
+    "overview",
+  );
   const {
     state,
     stats,
@@ -71,6 +74,7 @@ export default function Panel() {
           {[
             ["overview", "▦", "Genel bakış"],
             ["catalog", "↗", "API grupları & araçlar"],
+            ["service", "⌁", "MCP hizmeti"],
             ["logs", "≡", "Çağrı kayıtları"],
           ].map(([id, icon, label]) => (
             <button
@@ -117,11 +121,13 @@ export default function Panel() {
         <div className="mp-topbar">
           <div>
             Çalışma alanı <span>/</span>{" "}
-            {page === "logs"
-              ? "Çağrı kayıtları"
-              : page === "catalog"
-                ? "API kataloğu"
-                : "Genel bakış"}
+            {page === "service"
+              ? "MCP hizmeti & bağlantı"
+              : page === "logs"
+                ? "Çağrı kayıtları"
+                : page === "catalog"
+                  ? "API kataloğu"
+                  : "Genel bakış"}
           </div>
           <div>
             <span className="mp-demo-badge">● DEMO / SENTETİK VERİ</span>
@@ -133,11 +139,13 @@ export default function Panel() {
             <div>
               <div className="mp-eyebrow">OPENAPI → MCP</div>
               <h1>
-                {page === "logs"
-                  ? "Her çağrı görünür olsun."
-                  : page === "catalog"
-                    ? "API’lerinize yeni bir arayüz."
-                    : "API’lerinizden çalışan MCP araçlarına."}
+                {page === "service"
+                  ? "MCP hizmeti ve istemci bağlantısı."
+                  : page === "logs"
+                    ? "Her çağrı görünür olsun."
+                    : page === "catalog"
+                      ? "API’lerinize yeni bir arayüz."
+                      : "API’lerinizden çalışan MCP araçlarına."}
               </h1>
               <p>
                 Seçin, başlatın, gerçek bir çağrıyla doğrulayın. Kontrol sizde.
@@ -190,17 +198,36 @@ export default function Panel() {
           )}
           {page === "overview" && (
             <>
+              <OverviewService
+                state={state}
+                unavailable={unavailable}
+                onOpen={() => {
+                  invalidate();
+                  setPage(service?.deployment ? "service" : "catalog");
+                  window.scrollTo(0, 0);
+                }}
+              />
               <div className="mp-progress">
                 {[
                   ["API’yi içe aktar", !!state?.groups.length],
                   ["GET araçlarını seç", !!service?.deployment],
+                  ["Seçimi kaydet", !!service?.deployment],
                   ["MCP hizmetini başlat", !!online],
-                  ["Çağrıyı doğrula", !!result && !result.result.isError],
+                  ["MCP istemcisini bağla", false],
+                  ["Çağrıyı incele", false],
                 ].map(([text, done], i) => (
-                  <div key={String(text)} className={done ? "done" : ""}>
+                  <button
+                    key={String(text)}
+                    className={done ? "done" : ""}
+                    onClick={() => {
+                      invalidate();
+                      setPage(i < 3 ? "catalog" : i === 5 ? "logs" : "service");
+                      window.scrollTo(0, 0);
+                    }}
+                  >
                     <span>{done ? "✓" : `0${i + 1}`}</span>
                     {text}
-                  </div>
+                  </button>
                 ))}
               </div>
               <StatisticsView
@@ -211,7 +238,7 @@ export default function Panel() {
               />
             </>
           )}
-          {page !== "logs" && (
+          {page === "catalog" && (
             <ApiCatalog
               groups={state?.groups ?? []}
               group={group}
@@ -250,6 +277,8 @@ export default function Panel() {
                   const first = next.deployment!.manifest.tools[0];
                   setTool(first.name);
                   setArgs(defaults(first.parameters));
+                  setPage("service");
+                  window.scrollTo(0, 0);
                   setNotice(
                     "Araç seçimi kaydedildi. MCP hizmetini başlatabilirsiniz.",
                   );
@@ -274,8 +303,27 @@ export default function Panel() {
               }
             />
           )}
-          {page !== "logs" && service && (
+          {page === "catalog" && service?.deployment && (
+            <div className="mp-catalog-next">
+              <p>
+                Seçim kaydedildiğinde hizmeti başlatıp bağımsız istemciyi
+                bağlayabilirsiniz.
+              </p>
+              <button
+                className="mp-button"
+                onClick={() => {
+                  invalidate();
+                  setPage("service");
+                  window.scrollTo(0, 0);
+                }}
+              >
+                MCP hizmetine geç →
+              </button>
+            </div>
+          )}
+          {page === "service" && service && (
             <ServiceConsole
+              desktopExecutable={state?.desktopClientExecutable}
               service={service}
               unavailable={unavailable}
               canStart={draftSaved}
@@ -296,6 +344,11 @@ export default function Panel() {
               }}
               onReset={() => chooseTool(tool)}
               onCall={() => void runCall()}
+              onReview={() => {
+                invalidate();
+                setPage("catalog");
+                window.scrollTo(0, 0);
+              }}
               onStart={() =>
                 void action(
                   "MCP hizmeti doğrulanarak başlatılıyor",
@@ -329,7 +382,8 @@ export default function Panel() {
               SPECWAKE <b> / </b> Kontrollü API → MCP geçişi
             </span>
             <span>
-              Yerel kayıt · 7 gün / 5.000 olay · gövde ve credential loglanmaz
+              Yerel kayıt · 7 gün / 5.000 olay · hassas gövde ve kimlik
+              bilgileri kaydedilmez
             </span>
           </footer>
         </main>

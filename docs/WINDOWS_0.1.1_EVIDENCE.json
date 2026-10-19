@@ -1,0 +1,19 @@
+{
+  "version": "0.1.1",
+  "verificationDate": "2026-10-19",
+  "sourceTests": {
+    "passed": 47,
+    "failed": 0
+  },
+  "unpacked": true,
+  "portable": true,
+  "separateClientNoGlobalNode": true,
+  "restartPersistenceVerified": true,
+  "cleanWindows": "prepared-not-run",
+  "linuxDocker": "not-run-engine-unavailable",
+  "signing": "NotSigned",
+  "sha256": {
+    "Specwake-0.1.1-Portable-x64.exe": "636eb6ac60c8b43f6de0a297d67390f7674228f19604449eda6f8f7bd6d31aab",
+    "Specwake-0.1.1-Setup-x64.exe": "862e39ace82380e21fddea1dc005088b66088e4d59198ccf74024a76c279b011"
+  }
+}

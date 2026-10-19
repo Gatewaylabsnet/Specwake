@@ -1,5 +1,7 @@
 # Specwake Windows desktop
 
+> Current local delivery: **0.1.1, 19 October 2026**. Desktop now opens `/panel` and includes a separate `--mcp-client` mode with the bundled official SDK. Node/npm are unnecessary for the EXE and its HTTP demo client. The historical v0.1.0 download and recorded results below describe earlier builds; the current release is v0.1.1. Current package results and outstanding clean-Windows/signing gates: [WINDOWS_DELIVERY_VERIFICATION.md](WINDOWS_DELIVERY_VERIFICATION.md). End-user instructions: [WINDOWS_QUICK_START.md](WINDOWS_QUICK_START.md).
+
 The Electron shell opens the existing five-step authoring UI in a native window. The official Electron security guidance informed the explicit sandbox, context isolation, permission denial and navigation restrictions: https://www.electronjs.org/docs/latest/tutorial/security.
 
 ## Build and run
@@ -15,12 +17,13 @@ For distributable files:
 
 ```sh
 npm run desktop:pack
+npm run desktop:checksums
 ```
 
 Both Windows x64 outputs are created under `release/`:
 
-- `Specwake-0.1.0-Portable-x64.exe`: self-extracting portable application.
-- `Specwake-0.1.0-Setup-x64.exe`: per-user NSIS installer, no admin elevation requested, selectable destination and shortcuts.
+- `Specwake-0.1.1-Portable-x64.exe`: self-extracting portable application.
+- `Specwake-0.1.1-Setup-x64.exe`: per-user NSIS installer, no admin elevation requested, selectable destination and shortcuts.
 
 The icon is original Specwake geometry, generated reproducibly by `scripts/create-icon.mjs`; no Specfold asset was copied. Code signing is disabled, while application icon and version metadata are applied. These are unsigned MVP builds. An unknown publisher or SmartScreen prompt is possible. No certificate or access credential was created. The [v0.1.0 GitHub Release](https://github.com/Gatewaylabsnet/Specwake/releases/tag/v0.1.0) distributes the portable EXE, setup EXE and SHA-256 checksums separately from the source repository.
 
@@ -49,7 +52,7 @@ npm run test:desktop
 The self-test writes ignored `artifacts/desktop-verification.json` plus a capture of the actual loaded renderer to `artifacts/desktop-verification.png`. The same command can verify the portable wrapper:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-desktop.ps1 -Executable release\Specwake-0.1.0-Portable-x64.exe
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-desktop.ps1 -Executable release\Specwake-0.1.1-Portable-x64.exe -EvidenceDirectory artifacts\portable-011
 ```
 
 There is no remote debugging endpoint or privileged renderer test bridge. The self-test is a fixed backend scenario enabled only by explicit local command-line arguments, not renderer input. An installer is built without installing it on the development machine. Installation/uninstall and SmartScreen acceptance are not automated.

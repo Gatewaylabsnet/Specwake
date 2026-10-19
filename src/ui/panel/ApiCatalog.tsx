@@ -231,9 +231,9 @@ export function ApiCatalog(p: Props) {
                       {op.issues.length ? (
                         <span
                           className="mp-unsupported"
-                          title={op.issues.join(" ")}
+                          title={op.method !== "GET" ? "Bu demoda yalnız GET işlemleri yayımlanabilir." : op.issues.join(" ")}
                         >
-                          Kapalı ⓘ<small>{op.issues[0]}</small>
+                          Kapalı ⓘ<small>{op.method !== "GET" ? "Bu demoda yalnız GET işlemleri yayımlanabilir." : op.issues[0]}</small>
                         </span>
                       ) : (
                         <span className="mp-allowed">● İzin verilebilir</span>

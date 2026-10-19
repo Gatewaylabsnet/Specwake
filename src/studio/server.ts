@@ -11,6 +11,7 @@ import { startMock } from '../mock/server.js';
 import { safeDiagnostic } from '../runtime/errors.js';
 import { makeProbeReceipt } from '../core/probe-context.js';
 import { createPanel } from '../panel/routes.js';
+import type { DemoListeners } from '../panel/config.js';
 
 export function checkBrowserRequest(req: Pick<IncomingMessage,'headers'|'method'>, origin: string, token: string) {
   const host = new URL(origin).host;
@@ -29,7 +30,7 @@ async function body(req: IncomingMessage) {
 }
 function json(res: ServerResponse, status: number, value: unknown) { res.writeHead(status,{'Content-Type':'application/json'});res.end(JSON.stringify(value)); }
 
-export async function startStudio(port = 4318, options: ProbeOptions & {panelDataDir?: string} = {}) {
+export async function startStudio(port = 4318, options: ProbeOptions & {panelDataDir?: string; listeners?: DemoListeners; desktopClientExecutable?: string} = {}) {
   const csrf = randomBytes(32).toString('hex');
   const root = options.root ?? ROOT;
   let origin = `http://127.0.0.1:${port}`;
@@ -46,7 +47,7 @@ export async function startStudio(port = 4318, options: ProbeOptions & {panelDat
     try {
       const path = new URL(req.url!,origin).pathname;
       if (path.startsWith('/api/panel/')) {
-        panel ??= createPanel(root, options.panelDataDir ?? resolve(ROOT,'.local-data'));
+        panel ??= createPanel(root, options.panelDataDir ?? resolve(ROOT,'.local-data'), options.listeners, options.desktopClientExecutable);
         try { await (await panel).handle(req,res,new URL(req.url!,origin)); }
         catch { json(res,503,{code:'PANEL_UNAVAILABLE',error:'Panel kaydı açılamadı. Veri dizinini ve tek çalışan süreç olduğunu kontrol edin.'}); }
         return;
@@ -97,7 +98,7 @@ export async function startStudio(port = 4318, options: ProbeOptions & {panelDat
       } catch { json(res,404,{error:'Build the UI with npm run build, then start Specwake again.'}); }
     } catch (e) { json(res,400,{error:e instanceof Error ? e.message.slice(0,300) : 'Action failed. Try again.'}); }
   });
-  try { await new Promise<void>((resolve,reject) => {server.once('error',reject);server.listen(port,'127.0.0.1',resolve);}); }
+  try { await new Promise<void>((resolve,reject) => {server.once('error',reject);server.listen(port,options.listeners?.bindAddress ?? '127.0.0.1',resolve);}); }
   catch (error) { await mock.close(); throw error; }
   origin = `http://127.0.0.1:${(server.address() as {port:number}).port}`;
   console.error(`Specwake ready: ${origin}`);

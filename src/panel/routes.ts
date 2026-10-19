@@ -9,6 +9,7 @@ import { statistics } from "./statistics.js";
 import { json, PanelFault, readJson, safeFailure } from "./http.js";
 import { exportPackage } from "../studio/export.js";
 import { NAME } from "../core/contracts.js";
+import type { DemoListeners } from "./config.js";
 
 const selectionSchema = z
   .object({
@@ -44,7 +45,12 @@ function parse<T>(schema: z.ZodType<T>, value: unknown): T {
     );
   return result.data;
 }
-export async function createPanel(root: string, dataDir: string) {
+export async function createPanel(
+  root: string,
+  dataDir: string,
+  listeners?: DemoListeners,
+  desktopClientExecutable?: string,
+) {
   const catalog = await DemoCatalog.create(root);
   const journal = await LocalJournal.open(dataDir);
   let demo: Awaited<ReturnType<typeof startDemoApi>>;
@@ -54,18 +60,28 @@ export async function createPanel(root: string, dataDir: string) {
     await journal.close();
     throw error;
   }
-  const service = new DemoMcpService(demo.target, journal);
+  const service = new DemoMcpService(demo.target, journal, listeners);
   let calls = 0;
   return {
     async handle(req: IncomingMessage, res: ServerResponse, url: URL) {
       try {
         const action = url.pathname.slice("/api/panel/".length);
+        if (req.method === "GET" && action === "health") {
+          await journal.health();
+          return json(res, 200, {
+            ready: true,
+            demo: true,
+            storage: "writable",
+            service: service.state().phase,
+          });
+        }
         if (req.method === "GET" && action === "state")
           return json(res, 200, {
             service: service.state(),
             groups: [...catalog.groups.values()],
             clientLabels: CLIENT_LABELS,
             demo: true,
+            desktopClientExecutable,
             persistence:
               "Çağrı metadatası kalıcıdır; API grupları ve hizmet seçimi oturuma özeldir.",
           });

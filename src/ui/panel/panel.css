@@ -1472,3 +1472,463 @@
     animation: none !important;
   }
 }
+
+/* Management demo: readable metadata, explicit service state and client handoff. */
+.manager .mp-overview-service {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 24px;
+  align-items: center;
+  padding: 23px 25px;
+  background: linear-gradient(110deg, #163b40, #204c48);
+  color: #fff;
+  border-radius: 9px;
+  margin-bottom: 20px;
+}
+.mp-overview-service > div:first-child {
+  display: flex;
+  gap: 17px;
+  align-items: center;
+  min-width: 0;
+}
+.manager .mp-overview-service h2 {
+  font-size: 22px;
+  color: #f3fff8;
+}
+.mp-overview-service .mp-eyebrow {
+  color: #add5c5;
+}
+.mp-overview-service p {
+  color: #c1d9d1;
+  font:
+    12px/1.7 Consolas,
+    monospace;
+  overflow-wrap: anywhere;
+  margin-top: 6px;
+}
+.mp-live-orb {
+  display: grid;
+  place-items: center;
+  width: 49px;
+  height: 49px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: #ffffff12;
+  border: 1px solid #ffffff29;
+  color: #bbd5cc;
+  font-size: 28px;
+}
+.mp-live-orb.online {
+  color: #8fe2bc;
+  background: #8fe2bc13;
+}
+.mp-service-counts {
+  display: flex;
+  gap: 24px;
+  font-size: 11px;
+  color: #bed9ce;
+  white-space: nowrap;
+}
+.mp-service-counts strong {
+  display: block;
+  font-size: 25px;
+  font-weight: 550;
+  color: white;
+}
+.manager .mp-progress > button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  background: none;
+  border: 0;
+  color: #637971;
+  font-size: 12px;
+  padding: 3px;
+}
+.mp-progress > button > span {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  flex-shrink: 0;
+  border: 1px solid #d9e4df;
+  background: #f6f9f7;
+  border-radius: 50%;
+  font-size: 10px;
+}
+.manager .mp-progress > button.done {
+  color: #286f51;
+}
+.mp-progress > button.done > span {
+  background: #e6f3eb;
+  border-color: #cfe6d7;
+  color: #28774e;
+}
+.mp-catalog-next {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 3px 0 22px;
+}
+.mp-catalog-next p {
+  font-size: 12px;
+  color: #61756b;
+}
+.mp-connect-empty {
+  padding: 18px 24px;
+  color: #64786e;
+  background: #fafcfb;
+  font-size: 12px;
+  border-bottom: 1px solid #e2eae5;
+}
+.mp-connection {
+  border-bottom: 1px solid #dce7df;
+  background: #f3f8f5;
+}
+.mp-connection .mp-section-head {
+  padding-bottom: 13px;
+}
+.mp-connection-body {
+  padding: 0 24px 21px;
+  min-width: 0;
+}
+.mp-connection-body > p,
+.mp-connection-body details p {
+  font-size: 12px;
+  color: #4b6d60;
+  line-height: 1.8;
+  margin-bottom: 12px;
+}
+.mp-connection-body code {
+  overflow-wrap: anywhere;
+}
+.mp-connection-body pre {
+  font:
+    12px/1.8 Consolas,
+    monospace;
+  background: #fbfefc;
+  border: 1px solid #d7e5dc;
+  border-radius: 5px;
+  color: #315e49;
+  padding: 14px;
+  overflow: auto;
+  max-height: 370px;
+  max-width: 100%;
+  white-space: pre;
+  tab-size: 2;
+}
+.mp-code-copy {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  min-width: 0;
+  margin-bottom: 15px;
+}
+.mp-code-copy pre {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+.mp-copy-control {
+  display: inline-flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 100%;
+}
+.mp-copy-control > [role="status"] {
+  font-size: 11px;
+  color: #3c6b55;
+  max-width: 240px;
+}
+.mp-connection details {
+  border-top: 1px solid #d8e5dd;
+  padding-top: 13px;
+  margin: 10px 0 14px;
+}
+.mp-connection summary {
+  font-size: 12px;
+  font-weight: 600;
+  color: #316951;
+  cursor: pointer;
+}
+.mp-connection details p {
+  margin-top: 15px;
+}
+.mp-connection-body > small {
+  font-size: 11px;
+  color: #587265;
+  line-height: 1.7;
+}
+.manager .mp-call-open,
+.manager .mp-entity-link {
+  border: 0;
+  padding: 2px 0;
+  background: none;
+  color: #286f5a;
+  text-align: left;
+  font:
+    12px/1.7 Consolas,
+    monospace;
+  text-decoration: underline;
+  text-decoration-color: #c4d8cc;
+  text-underline-offset: 4px;
+  overflow-wrap: anywhere;
+}
+.manager .mp-call-open small {
+  color: #62786d;
+  font-size: 10px;
+}
+.manager .mp-call-dialog {
+  width: min(700px, calc(100vw - 28px));
+  max-height: 88vh;
+  border: 1px solid #c8ddd0;
+  border-radius: 10px;
+  padding: 0;
+  color: #284638;
+  background: #fff;
+  box-shadow: 0 22px 100px #102e3260;
+  overflow: auto;
+}
+.mp-call-dialog::backdrop {
+  background: #0c242bb0;
+  backdrop-filter: blur(3px);
+}
+.mp-call-dialog .mp-section-head {
+  border-bottom: 1px solid #e0e8e2;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 1;
+}
+.mp-call-detail-body {
+  padding: 22px 26px;
+}
+.mp-detail-summary {
+  padding: 13px 16px;
+  background: #eef7f0;
+  border: 1px solid #d0e6d7;
+  border-radius: 5px;
+  font-size: 13px;
+  color: #34664c;
+  line-height: 1.8;
+}
+.mp-detail-summary.error {
+  color: #954b3d;
+  border-color: #eed2c7;
+  background: #fff3ed;
+}
+.mp-call-detail-body dl {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 0;
+  margin: 20px 0;
+}
+.mp-call-detail-body dt,
+.mp-call-detail-body dd {
+  border-bottom: 1px solid #e7ede9;
+  padding: 12px 0;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.mp-call-detail-body dt {
+  color: #66796c;
+}
+.mp-call-detail-body dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.mp-call-detail-body dd small {
+  display: block;
+  color: #62776a;
+  font-size: 11px;
+  margin-top: 5px;
+}
+.mp-call-detail-body dd code {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.mp-call-detail-body dd .mp-copy-control {
+  margin-top: 9px;
+}
+.mp-call-detail-body .mp-disclaimer {
+  font-size: 11px !important;
+  line-height: 1.8;
+  margin: 0 0 18px;
+}
+.manager .mp-metric > div {
+  font-size: 12px;
+}
+.manager .mp-metric > small,
+.manager .mp-calculation,
+.manager .mp-section-head p,
+.manager .mp-disclaimer,
+.manager .mp-logs td small {
+  color: #5e7468;
+  font-size: 11px;
+}
+.manager .mp-metric > strong {
+  font-size: 31px;
+}
+.manager .mp-eyebrow {
+  font-size: 10px;
+}
+.manager .mp-chip {
+  font-size: 10px;
+}
+.manager .mp-logs td {
+  font-size: 12px;
+}
+.manager .mp-logs th {
+  font-size: 11px;
+}
+.manager .mp-section-head h3 {
+  font-size: 15px;
+}
+.manager .mp-dimension-list > div > span {
+  font-size: 11px;
+  color: #426953;
+}
+.manager .mp-dimension-list > div > small {
+  color: #617567;
+  font-size: 11px;
+}
+.manager .mp-chart-times {
+  font-size: 10px;
+  color: #617567;
+}
+.manager .mp-legend {
+  font-size: 10px;
+}
+.manager .mp-legend > span:first-child {
+  color: #287b57;
+}
+.manager .mp-legend > span:last-child {
+  color: #a55c3e;
+}
+.manager .mp-demo-note p {
+  font-size: 11px;
+}
+.manager .mp-demo-badge {
+  font-size: 10px;
+}
+.manager .mp-call-result pre {
+  font-size: 12px;
+}
+.manager .mp-call-form > p,
+.manager .mp-call-form > label,
+.manager .mp-label-row {
+  font-size: 12px;
+}
+.manager .mp-result-note {
+  font-size: 11px;
+  color: #61766b;
+}
+.manager .mp-tool-name {
+  font-size: 10px;
+  color: #61766b;
+}
+.manager .mp-card-foot > span {
+  font-size: 11px;
+  color: #61766b;
+}
+.manager .mp-group small {
+  font-size: 11px;
+  color: #57715f;
+}
+.manager .mp-unsupported small {
+  color: #815d37;
+}
+.manager .mp-allowed {
+  font-size: 11px;
+  color: #397456;
+}
+.manager .mp-footer {
+  font-size: 10px;
+  color: #60776b;
+}
+@media (max-width: 1200px) {
+  .mp-overview-service {
+    grid-template-columns: 1fr auto !important;
+  }
+  .mp-overview-service > .mp-button {
+    grid-column: 1/-1;
+    justify-self: start;
+  }
+  .mp-code-copy {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .mp-code-copy pre {
+    width: 100%;
+  }
+}
+@media (max-width: 700px) {
+  .mp-overview-service {
+    padding: 20px !important;
+    gap: 18px !important;
+    grid-template-columns: 1fr !important;
+  }
+  .mp-service-counts {
+    gap: 30px;
+  }
+  .manager .mp-overview-service h2 {
+    font-size: 21px;
+  }
+  .mp-connection .mp-section-head {
+    padding: 17px;
+  }
+  .mp-connection-body {
+    padding: 0 17px 18px;
+  }
+  .mp-call-detail-body {
+    padding: 18px;
+  }
+  .mp-call-detail-body dl {
+    grid-template-columns: 1fr;
+  }
+  .mp-call-detail-body dt {
+    border: 0;
+    padding: 12px 0 0;
+    font-size: 11px;
+  }
+  .mp-call-detail-body dd {
+    padding-top: 3px;
+  }
+  .mp-catalog-next {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .manager .mp-sidebar nav {
+    overflow-x: auto;
+    justify-content: flex-start;
+    gap: 4px;
+    padding-bottom: 3px;
+  }
+  .manager .mp-sidebar nav button {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .mp-connection summary {
+    line-height: 1.8;
+  }
+  .mp-copy-control .mp-button {
+    white-space: normal;
+    text-align: left;
+  }
+  .manager .mp-progress > button {
+    font-size: 11px;
+  }
+}
+.manager .mp-progress {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  row-gap: 16px;
+}
+@media (max-width: 700px) {
+  .manager .mp-progress {
+    grid-template-columns: 1fr 1fr;
+  }
+}

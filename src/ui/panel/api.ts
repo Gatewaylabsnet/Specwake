@@ -7,6 +7,7 @@ export type PanelState = {
   service: ReturnType<DemoMcpService["state"]>;
   clientLabels: string[];
   persistence: string;
+  desktopClientExecutable?: string;
 };
 let session: Promise<string> | undefined;
 export async function panelApi(
